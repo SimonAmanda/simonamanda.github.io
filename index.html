@@ -7,7 +7,8 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<meta name="theme-color" content="#FBEDEA" />
 
-	<link rel="shortcut icon" type="image/x-icon"  href="favicon.ico?">
+	<link rel="icon" type="image/png" href="favicon.png" />
+
 	<link rel="apple-touch-icon" href="apple-touch-icon.png">
 
 	<link rel="stylesheet" href="style.css">
@@ -33,7 +34,7 @@
 		<p>
 			<div id="cutepics_container">
 				<canvas id="diffusion_canvas"></canvas>
-				<img id="cutepics" src="cutepic0.jpg" alt="Cute Picture"></img>
+				<img id="cutepics" src="Photos/alesund.jpg" alt="Cute Picture"></img>
 			</div>
 			<div class="mono" style="font-size: 17px;">
 				<span class="boldened" se="Datum: " no="Dato: " en="Date: "></span><span se="28 Juni 2024" no="28. juni 2024" en="28th June 2024"></span><br>
@@ -543,26 +544,29 @@
 
 		updateLanguage(lang)
 
-		const url = 'https://jade-earthy-gigantspinosaurus.glitch.me/' + id;
+		if (id != null) {
+			const url = 'https://jade-earthy-gigantspinosaurus.glitch.me/' + id;
 
-		fetch(url)
-		.then(response => {
-			if (!response.ok) {
-			throw new Error('Network response was not ok ' + response.statusText);
-			}
-			return response.json();
-		})
-		.then(data => {
-			const result = data;
-			console.log(result);
-			if (result) {
-				document.querySelector("#welcome_moddle").innerHtml = " "
-				document.querySelector("#welcome_name").innerHTML = result + "!";
-			}
-		})
-		.catch(error => {
-			console.error('There has been a problem with your fetch operation:', error);
-		});
+			fetch(url)
+			.then(response => {
+				if (!response.ok) {
+				throw new Error('Network response was not ok ' + response.statusText);
+				}
+				return response.json();
+			})
+			.then(data => {
+				const result = data;
+				console.log(result);
+				if (result) {
+					document.querySelector("#welcome_moddle").innerHtml = " "
+					document.querySelector("#welcome_name").innerHTML = result + "!";
+				}
+			})
+			.catch(error => {
+				console.error('There has been a problem with your fetch operation:', error);
+			});
+		}
+		
 	</script>
 
 	<!-- MAILCHIMP -->
