@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>Simon och Amanda gifter sig!</title>
+
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="theme-color" content="#FBEDEA" />
+
+	<link rel="shortcut icon" type="image/x-icon"  href="favicon.ico?">
+	<link rel="apple-touch-icon" href="apple-touch-icon.png">
+
+	<link rel="stylesheet" href="style.css">
+
+	<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+	<link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+	<a href=""></a>
+</head>
+<body>
+
+	<div class="language_selection">
+		<div onclick="updateLanguage('se')">🇸🇪</div>
+		<div onclick="updateLanguage('no')">🇳🇴</div>
+		<div onclick="updateLanguage('en')">🇬🇧</div>
+	</div>
+
+	<section class="about centering">
+		<h1><span class="boldened" se="Välkommen till vårt bröllop" en="Welcome to our wedding" no="Velkommen til vårt bryllup"></span><span id="welcome_middle">!</span><span id="welcome_name"></span></h1>
+		<p>
+			<div id="cutepics_container">
+				<canvas id="diffusion_canvas"></canvas>
+				<img id="cutepics" src="cutepic0.jpg" alt="Cute Picture"></img>
+			</div>
+			<div class="mono" style="font-size: 17px;">
+				<span class="boldened" se="Datum: " no="Dato: " en="Date: "></span><span se="28 Juni 2024" no="28. juni 2024" en="28th June 2024"></span><br>
+				<span class="boldened" se="Vigsel: " no="Vielse: " en="Ceremony: "></span><span se="Sollentuna kyrka, kl. 14:45, Kyrkvägen 2, 192 72 Sollentuna" no="Sollentuna kirke, kl. 14:45, Kyrkvägen 2, 192 72 Sollentuna" en="Sollentuna Church, 14:45, Kyrkvägen 2, 192 72 Sollentuna"></span><br>
+				<span class="boldened" se="Mottagning: " no="Mottakelse: " en="Reception: "></span><span se="Bergendal, Landsnoravägen 110, 192 55 Sollentuna" no="Bergendal, Landsnoravägen 110, 192 55 Sollentuna" en="Bergendal, Landsnoravägen 110, 192 55 Sollentuna"></span>
+			</div>
+			<br>
+			<span se="Efter många år, men färre än vad Anton trodde var nödvändigt, ska vi äntligen &quot;tie the knot&quot; och vill gärna göra det med dig den " en="After many years, but fewer than Anton thought necessary, we are finally going to 'tie the knot' and would like to do it with you on " no="Etter mange år, men færre enn Anton trodde var nødvendig, skal vi endelig «tie the knot» og vil gjerne gjøre det med deg den "></span><span class="boldened" se="28e juni 2025" en="28th of June 2025" no="28. juni 2025"></span><span se=". Vigseln äger rum i Sollentuna Kyrka i Stockholm, följt av middag och dans på Bergendal!" en=". The ceremony will take place at Sollentuna Church in Stockholm, followed by dinner and dancing at Bergendal!" no=". Seremonien finner sted i Sollentuna kirke i Stockholm, etterfulgt av middag og dans på Bergendal!"></span>
+			<br><br>
+			<span se="Eftersom vi inte alltid ser alla så ofta som vi önskar så tänkte vi passa på och ta tillfället i akt och förlänga helgen lite extra. Vi kommer därför ha en gemensam grillning och lite lekar på fredagskvällen samt en gemsam frukost på söndag morgon för de som sover kvar. Fredagsgrillningen kommer ske utomhus så se till att ha med en extra tröja och göra några soldanser dagarna innan!" en="Since we do not always see everyone as often as we wish, we thought we would take the opportunity to extend the weekend a little extra. We will therefore have a joint barbecue and some games on Friday evening as well as a shared breakfast on Sunday morning for those who stay overnight. The Friday barbecue will be held outdoors so make sure to bring an extra sweater and do some sun dances a few days before!" no="Siden vi ikke alltid ser alle så ofte som vi ønsker, tenkte vi å benytte anledningen til å forlenge helgen litt ekstra. Vi vil derfor ha en felles grillfest og noen spill på fredagskvelden samt en felles frokost på søndag morgen for de som overnatter. Fredagsgrillingen vil foregå utendørs, så sørg for å ta med en ekstra genser og gjøre noen soldanser noen dager før!"></span>
+			<br><br>
+			<span se="Vi kommer att skicka ut information om bröllopet via email, så se till att signa upp nedan! Vi lovar att inte spama, utan kommer endast skicka ut information när saker har uppdaterats samt påminna om tider och dyikt närmre inpå (detta är" en="We will send out information about the wedding via email, so be sure to sign up below! We promise not to spam, but will only send out information when things have been updated and remind about times and the like closer to the event (this is" no="Vi vil sende ut informasjon om bryllupet via e-post, så husk å melde deg på nedenfor! Vi lover å ikke spamme, men vil kun sende ut informasjon når ting er oppdatert og minne om tider og lignende nærmere arrangementet (dette er"></span><b se=" inte " en=" not " no=" ikke "></b><span se="detsamma som att osa till bröllopet!)" en="the same as RSVPing to the wedding!)" no="det samme som å RSVP til bryllupet!)"></span>
+			<br><br>
+			<span se="Inte långt kvar nu!" en="Not long left now!" no="Ikke lenge igjen nå!"></span>
+			<br><br>
+			<b se="Vigsel om:" en="Ceremony in:" no="Seremoni om:"></b>
+			<div class="mono" id="countdown">test</div>
+		</p>
+	</section>
+
+	<section class="links centering">
+	    <a id="github" href="#" onclick="openPopup()" se="Prenumerera på vårt nyhetsbrev" en="Subscribe to our Newsletter" no="Abonner på vårt nyhetsbrev"></a>
+	</section>
+	<section class="centering">
+		<i style="font-size: 18px; opacity: 0.7;" se="❗️👆 Detta är" en="❗️👆 This is" no="❗️👆 Dette er"></i><b style="font-size: 18px; opacity: 0.7;" se=" inte " en=" not " no=" ikke "></b><i style="font-size: 18px; opacity: 0.7;" se="detsamma som att anmäla sig till bröllopet, utan endast för att få information smidigt och enkelt!" en="the same as signing up for the wedding, but only to get information smoothly and easily!" no="det samme som å melde seg på bryllupet, men bare for å få informasjonen jevnt og enkelt!"></i>
+	</section>
+
+	<!-- Hidden Popup Modal -->
+	<div id="mc_embed_signup_modal" class="modal">
+	    <div class="modal-content">
+	        <span class="close" onclick="closePopup()">&times;</span>
+	        <div id="mc_embed_signup">
+	            <form action="https://outlook.us22.list-manage.com/subscribe/post?u=9bd691f1c8e9d23b0e6fa111d&amp;id=f0698fc8c8&amp;f_id=00a4cde1f0" method="post" id="mc-embedded-subscribe-form" name="mc-embedded-subscribe-form" class="validate" target="_blank">
+	                <div id="mc_embed_signup_scroll">
+	                    <h2 se="Abonnera på uppdateringar" en="Subscribe for updates" no="Abonner på oppdateringer"></h2>
+	                    <div class="mc-field-group">
+	                        <label for="mce-EMAIL" se="E-postadress" en="Email Address" no="E-postadresse"><span class="asterisk">*</span></label>
+	                        <input type="email" name="EMAIL" class="required email" id="mce-EMAIL" required value="">
+	                    </div>
+	                    <div class="mc-field-group">
+	                        <label for="mce-FNAME" se="Namn" en="Name" no="Navn"><span se="Namn" en="Name" no="Navn"></span></label>
+	                        <input type="text" name="FNAME" class="text" id="mce-FNAME" value="">
+	                    </div>
+	                    <div id="mce-responses" class="clear foot">
+	                        <div class="response" id="mce-error-response" style="display: none;"></div>
+	                        <div class="response" id="mce-success-response" style="display: none;"></div>
+	                    </div>
+	                    <div aria-hidden="true" style="position: absolute; left: -5000px;">
+	                        <input type="text" name="b_9bd691f1c8e9d23b0e6fa111d_f0698fc8c8" tabindex="-1" value="">
+	                    </div>
+	                    <div class="optionalParent">
+	                        <div class="clear foot">
+	                            <input type="submit" name="subscribe" id="mc-embedded-subscribe" class="button" value="OK">
+	                        </div>
+	                    </div>
+	                </div>
+	            </form>
+	            <div id="success-message" style="display: none; text-align: center;">
+	                <h2>Successful</h2>
+	                <button onclick="closePopup()">Close</button>
+	            </div>
+	        </div>
+	    </div>
+	</div>
+
+	<section>
+		<div class="talks centering">
+			<hr class="squiggly-line">
+			<h1 class="boldened" se="OSA" en="RSVP" no="SVP"></h1>
+			<span se="Det är ju ganska långt tid kvar, men om du redan nu vet att du kommer, eller inte kommer bli med är det bara att fylla i " en="It is quite a long time left, but if you already know that you will, or will not join, just fill in " no="Det er ganske lenge igjen, men hvis du allerede vet at du blir, eller ikke blir med, fyll bare ut "></span><a target="_blank" href="https://forms.gle/N8F8cFeDEpreBHoJA" class="outlink" se="detta" en="this" no="dette"></a><span se=" formulär." en=" form." no=" skjema."></span>
+			<br><br>
+			<span se="Vi behöver " en="We need to " no="Vi må vite "></span><span class="boldened" se="SENAST" en="AT THE VERY LATEST" no="SENEST"></span><span se=" veta om du kommer den " en=" know if you will join by " no=" om du vil bli med den "></span><span class="boldened" se="10 Mars 2025." en="10th of March 2025" no="10. mars 2025"></span>!
+		</div>
+	</section>
+
+	<section>
+		<div class="talks centering">
+			<hr class="squiggly-line">
+			<h1 class="boldened" id="osa" se="Boende" en="Accommodation" no="Overnatting"></h1>
+			<video id="hotel-video" autoplay muted loop src="bergendal-hotell-min-h264.mp4"></video>
+			<span se="Vill du sova på det här stället (vore trevligt men förstår att det inte är för alla)? Då är det här ditt tecken att lägga in en bokning! Du väljer själv om du vill sova där 1, 2 eller 0 nätter men vi och familj gör det Fredag -> Söndag! Om du känner att en natt räcker, ja men då rekomenderar vi lördag -> söndag, skönt att ha nära hem efter festen och vi sätter stort pris på att få se dig vid frukost på söndag morgon!" en="Do you want to sleep at this place (it would be nice but we understand that it is not for everyone)? Then this is your sign to make a booking! You choose whether you want to sleep there 1, 2 or 0 nights but we and family do it Friday -> Sunday! If you feel that one night is enough, then we recommend Saturday -> Sunday, nice to be close to home after the party and we greatly appreciate seeing you at breakfast on Sunday morning!" no="Vil du sove på dette stedet (det ville vært hyggelig, men vi forstår at det ikke er for alle)? Da er dette ditt tegn til å bestille! Du velger selv om du vil sove der 1, 2 eller 0 netter, men vi og familien gjør det fredag -> søndag! Hvis du føler at én natt er nok, anbefaler vi lørdag -> søndag, fint å være nær hjem etter festen og vi setter stor pris på å se deg til frokost søndag morgen!"></span>
+			<br><br>
+			<span se="Pricken över i:et? Hotellet har både " en="The icing on the cake? The hotel has both a " no="Prikken over i-en? Hotellet har både "></span><a class="outlink" href="https://www.bergendal.se/aktiviteter/relax-gym/" se="gym och relax avdelning" en="gym and relaxation area" no="treningsstudio og avslapningsområde"></a><span se=" som ingår om ni bokar övernattning, kanske en nice lördagsaktivtet innan fixandet drar igång?" en=" which is included if you book an overnight stay, maybe a nice Saturday activity before the preparations start?" no=" som er inkludert hvis du bestiller overnatting, kanskje en fin lørdagsaktivitet før forberedelsene starter?"></span>
+			<br><br> 
+			<span se="Vi har inte reserverat rum för gästerna så rummen kan komma att ta slut (speciellt om någon annan bokar bröllop i den andra delen av hotellet samma dag) så vår rekomendation är att boka boendet så snart som möjligt (avbokning ska vara möjligt om något skulle ske)." en="We have not reserved rooms for the guests, so the rooms may run out (especially if someone else books a wedding in the other part of the hotel on the same day). Therefore, our recommendation is to book accommodation as soon as possible (cancellation should be possible if something happens)." no="Vi har ikke reservert rom for gjestene, så rommene kan bli utsolgt (spesielt hvis noen andre booker bryllup i den andre delen av hotellet samme dag). Derfor anbefaler vi å bestille overnatting så snart som mulig (avbestilling skal være mulig hvis noe skulle skje)."></span>
+			<br><br>
+			<span se="För att boka, maila " en="To book, email " no="For å bestille, send en e-post til "></span><span class="mono">info@bergendal.se</span><span se=" eller ring " en=" or call " no=" eller ring "></span><span class="mono">+46 (0) 8-444 51 50</span><span se=" och säg att du tillhör Amanda/Simon bröllopet för att ta del av de exklusiva priserna. Glöm inte att uppge din begärda rumstyp (ink. dubbel/twin)!" en=" and say that you belong to Amanda/Simon wedding to get the exclusive prices. Don't forget to state your requested room type (incl. double/twin)!" no=" og si at du tilhører Amanda/Simon bryllupet for å få de eksklusive prisene. Ikke glem å oppgi ønsket romtype (inkl. dobbelt/twin)!"></span>
+			<br><br>
+			<span class="bold mono" se="Pris per natt:" en="Price per night:" no="Pris per natt:"></span>
+			<div class="mono"><span se="Dubbel/twin rum 2000 SEK" en="Double/twin room 2000 SEK" no="Dobbelt/twin rom 2000 SEK"></span></div>
+			<div class="mono"><span se="Enkelrum 1400 SEK" en="Single room 1400 SEK" no="Enkeltrom 1400 SEK"></span></div>
+			<i style="font-size: 18px; opacity: 0.7;" se="(Betalas vid utcheckning)" en="(Paid at checkout)" no="(Betales ved utsjekking)"></i>
+			<br><br>
+			<i style="font-size: 18px; opacity: 0.7;" se="Har du ingen att dubbla upp på ett dubbelrum med? Hör av dig så kommer vi med förslag!" en="Don't have anyone to pair up with in a double room? Get in touch and we will come up with suggestions!" no="Har du ingen å dele dobbeltrom med? Ta kontakt så kommer vi med forslag!"></i>
+		</div>
+	</section>
+	
+	<div class="centering">
+		<hr class="squiggly-line">
+	</div>
+
+	<section id="talks" class="centering">
+		<h1 se="Schema (extremt preliminärt)" en="Schedule (extremely TBD)" no="Tidsplan (ekstremt foreløpig)"></h1>
+		<div class="timeline">
+			<div class="talk">
+				<div class="name" se="Incheckning för fredagsmänniskor" en="Check-in for Friday people" no="Innsjekking for fredagfolk"></div>
+				<div class="date_loc" se="Från 15:00 · Receptionen" en="From 15:00 · Reception" no="Fra 15:00 · Resepsjon"></div>
+				<div class="link"><a target="_blank" href="https://www.google.com/maps/@59.4302465,17.9827379,3a,75y,139.66h,85.4t/data=!3m7!1e1!3m5!1sAF1QipMa6OG10eRtFQUDNyZyoJZJWNvk13v2kZRyL9Dg!2e10!6shttps:%2F%2Flh5.googleusercontent.com%2Fp%2FAF1QipMa6OG10eRtFQUDNyZyoJZJWNvk13v2kZRyL9Dg%3Dw900-h600-k-no-pi4.597208203520921-ya71.88112591288393-ro0-fo90!7i10000!8i5000?coh=205410&entry=ttu" se="Förhandsgranska" en="Preview" no="Forhåndsvisning"></a></div>
+			</div>
+
+			<div class="talk">
+				<div class="name" se="Fredagsgrillning" en="Friday barbecue" no="Fredagsgrilling"></div>
+				<div class="date_loc" se="Typ 18:00 · Nere vid bryggan" en="Around 18:00 · Down by the pier" no="Rundt 18:00 · Nede ved brygga"></div>
+				<div class="link"><a target="_blank" href="https://www.google.com/maps/@59.4291852,17.9843901,3a,75y,153.06h,78.88t/data=!3m7!1e1!3m5!1sAF1QipM8lvr6rNNbrc4onK9GzWYn3sPwNco2JhbOiLjx!2e10!6shttps:%2F%2Flh5.googleusercontent.com%2Fp%2FAF1QipM8lvr6rNNbrc4onK9GzWYn3sPwNco2JhbOiLjx%3Dw900-h600-k-no-pi11.120097152481705-ya174.2609787140633-ro0-fo90!7i10000!8i5000?coh=205410&entry=ttu" se="Förhandsgranska" en="Preview" no="Forhåndsvisning"></a></div>
+			</div>
+
+			<div class="talk">
+				<div class="name" se="Sov sött" en="Sleep tight" no="Sov godt"></div>
+				<div class="date_loc" se="Inte allt för sent · Bergendal/Din egen säng" en="Not too late · Bergendal/Your own bed" no="Ikke for sent · Bergendal/Din egen seng"></div>
+			</div>
+
+			<div class="talk">
+				<div class="name" se="Frukost" en="Breakfast" no="Frokost"></div>
+				<div class="date_loc" se="9:00 - 10:30 · Bergendals matsal (endast hotellgäster, fri sittning)" en="9:00 - 10:30 · Bergendal's dining room (hotel guests only, free seating)" no="9:00 - 10:30 · Bergendals spisestue (kun hotellets gjester, fri sitteplasser)"></div>
+			</div>
+
+			<div class="talk">
+				<div class="name" se="Fri lek/lunch/fixa frillan" en="Free play/lunch/fix your hair" no="Fri lek/lunsj/fikse håret"></div>
+				<div class="date_loc" se="10:30 - 14:00 · Spa tur? Donken? You do you!" en="10:30 - 14:00 · Spa trip? McDonald's? You do you!" no="10:30 - 14:00 · Spa-tur? Macken? You do you!"></div>
+			</div>
+
+			<div class="talk">
+				<div class="name" se="Transport till kyrkan" en="Transport to church" no="Transport til kirken"></div>
+				<div class="date_loc" se="14:00 - 14.30 · Vroom vroom" en="14:00 - 14:30 · Vroom vroom" no="14:00 - 14:30 · Vroom vroom"></div>
+			</div>
+
+			<div class="talk">
+				<div class="name" se="Vigsel" en="Ceremony" no="Seremoni"></div>
+				<div class="date_loc" se="14:45 (inshallah) · Sollentuna Kyrka" en="14:45 (inshallah) · Sollentuna Church" no="14:45 (inshallah) · Sollentuna kirke"></div>
+				<div class="date_loc"><span se="Var där " en="Be there " no="Vær der "></span><b se="INNAN" en="BEFORE" no="FØR"></b><span se=" vigseln startar, " en=" the ceremony starts, " no=" seremonien starter, "></span><i se="bruden" en="the bride" no="bruden"></i><span se=" in sist" en=" enters last" no=" går sist inn"></span></div>
+			</div>
+			
+			<div class="talk">
+				<div class="name" se="Incheckning för lördagsmänniskor" en="Check-in for Saturday people" no="Innsjekking for lørdagfolk"></div>
+				<div class="date_loc" se="15:01 · Receptionen" en="15:01 · Reception" no="15:01 · Resepsjon"></div>
+				<div class="date_loc"><span se="Var där " en="Be there " no="Vær der "></span><b se="EFTER" en="AFTER" no="ETTER"></b><span se=" vigseln slutar" en=" the ceremony ends" no=" seremonien slutter"></span></div>
+			</div>
+			
+
+			<div class="talk">
+				<div class="name" se="Brudskål + pics med gäster" en="Bride's toast + pics with guests" no="Brudens skål + bilder med gjester"></div>
+				<div class="date_loc" se="16:20 (4:20) · Bergendal Herrgård vid fontän" en="16:20 (4:20) · Bergendal Manor by the fountain" no="16:20 (4:20) · Bergendal Manor ved fontenen"></div>
+				<div class="link"><a target="_blank" href="https://www.google.com/maps/@59.4300718,17.9837268,3a,75y,344.51h,98.82t/data=!3m8!1e1!3m6!1sAF1QipOTod61uZiMN-pbyNufkvqgXE8FfognAJpUSHqL!2e10!3e11!6shttps:%2F%2Flh5.googleusercontent.com%2Fp%2FAF1QipOTod61uZiMN-pbyNufkvqgXE8FfognAJpUSHqL%3Dw900-h600-k-no-pi-8.821361496043835-ya186.5145290877457-ro0-fo90!7i10000!8i5000?coh=205410&entry=ttu" se="Förhandsgranska" en="Preview" no="Forhåndsvisning"></a></div>
+			</div>
+
+			<div class="talk">
+				<div class="name" se="Middag" en="Dinner" no="Middag"></div>
+				<div class="date_loc" se="17:30 · Bergendal Herrgård (entré plan)" en="17:30 · Bergendal Manor (ground floor)" no="17:30 · Bergendal Manor (bakkeplan)"></div>
+			</div>
+
+			<div class="talk">
+				<div class="name" se="Första dansen" en="First dance" no="Første dans"></div>
+				<div class="date_loc" se="21:00 · Herrgårdens källare (lovar det är fräscht)" en="21:00 · The manor's cellar (promise it's fresh)" no="21:00 · Herregårdens kjeller (lover det er ferskt)"></div>
+			</div>
+
+			<div class="talk">
+				<div class="name" se="Kaka?" en="Cake?" no="Kake?"></div>
+				<div class="date_loc" se="22:00 · En våning upp från matsalen (hiss finns)" en="22:00 · One floor up from the dining room (elevator available)" no="22:00 · En etasje opp fra spisestuen (heis tilgjengelig)"></div>
+			</div>
+
+			<div class="talk">
+				<div class="name" se="Lokalhyra upphör" en="Venue rental ends" no="Stedets leie slutter"></div>
+				<div class="date_loc" se="01:00 · ZZzzzzzZZZzzzzZZzzz" en="01:00 · ZZzzzzzZZZzzzzZZzzz" no="01:00 · ZZzzzzzZZZzzzzZZzzz"></div>
+			</div>
+
+			<div class="talk">
+				<div class="name" se="Söndags frukost" en="Sunday breakfast" no="Søndagsfrokost"></div>
+				<div class="date_loc" se="09:00 - 10:30 · Abonnerat rum på Bergendal" en="09:00 - 10:30 · Reserved room at Bergendal" no="09:00 - 10:30 · Reservert rom på Bergendal"></div>
+				<div class="date_loc"><i se="Vi satsar på att rulla in 09:30 men vem vet." en="We aim to roll in at 09:30 but who knows." no="Vi satser på å rulle inn klokken 09:30, men hvem vet."></i><span se=" Denna är endast för de som sover på hotellet." en=" This is only for those staying at the hotel." no=" Dette er kun for de som overnatter på hotellet."></span></div>
+			</div>			
+
+			<div class="talk">
+				<div class="name" se="Utcheckning" en="Checkout" no="Utsjekking"></div>
+				<div class="date_loc" se="11:00 · Receptionen" en="11:00 · Reception" no="11:00 · Resepsjon"></div>
+			</div>
+
+		</div>
+	</section>
+
+	<div class="centering">
+		<hr class="squiggly-line">
+	</div>
+
+	<section class="centering projects">
+		<h1 se="Bröllopsgåvor" en="Wedding gifts" no="Bryllupsgaver"></h1>
+
+		<div se="Kommer i vår, watch this space!" en="Coming this spring, watch this space!" no="Kommer til våren, følg med her!"></div>
+	</section>
+
+	<div class="centering">
+		<hr class="squiggly-line">
+	</div>
+	
+	<section class="papers centering">
+		<h1 se="FAQ:" en="FAQ:" no="FAQ:"></h1>
+
+		<div class="masonry-grid">
+			<div class="column">
+				<div class="paper" id="accspec">
+					<div class="formula">💑</div>
+					<div class="title" se="Kan jag ta med en plus 1?" en="Can I bring a plus 1?" no="Kan jeg ta med en pluss 1?"></div>
+					<div class="subtitle" se="Endast explicit inbjudna tyvärr" en="Only explicitly invited, unfortunately" no="Kun eksplisitt invitert, dessverre"></div>
+				</div>
+		
+				<div class="paper" id="fredagsgrillning">
+					<div class="formula">🍖</div>
+					<div class="title" se="Får jag komma på fredagsgrillning även om jag inte bor på hotellet?" en="Can I come to the Friday barbecue even if I am not staying at the hotel?" no="Kan jeg komme på fredagsgrillingen selv om jeg ikke bor på hotellet?"></div>
+					<div class="subtitle" se="JA!" en="YES!" no="JA!"></div>
+				</div>
+
+				<div class="paper" id="symbolrecovery">
+					<div class="formula">🤔❓</div>
+					<div class="title" se="Borde jag ha med mig något på fredagen?" en="Should I bring something on Friday?" no="Bør jeg ta med meg noe på fredag?"></div>
+					<div class="subtitle" se="Typ inte vi bjuder på mat och dricka, kanske om man har någon utelek (vi har redan kubb) som kan vara trevlig. Badkläder är en möjlighet med." en="Not really, we provide food and drink, maybe if you have an outdoor game (we already have kubb) that can be nice. Swimwear is also an option." no="Ikke egentlig, vi tilbyr mat og drikke, kanskje hvis du har et utendørsspill (vi har allerede kubb) som kan være fint. Badetøy er også et alternativ."></div>
+				</div>
+
+				<div class="paper" id="measureoperatorconv">
+					<div class="formula">🍖</div>
+					<div class="title" se="Får jag komma på frukost lördag och/eller söndag även om jag inte bor på hotellet?" en="Can I come to breakfast on Saturday and/or Sunday even if I am not staying at the hotel?" no="Kan jeg komme til frokost lørdag og/eller søndag selv om jeg ikke bor på hotellet?"></div>
+					<div class="subtitle" se="Nej :(" en="No :(" no="Nei :("></div>
+				</div>
+		
+				<div class="paper" id="qhalc">
+					<div class="formula">⛪</div>
+					<div class="title" se="Hur tar jag mig till/från kyrkan?" en="How do I get to/from the church?" no="Hvordan kommer jeg til/fra kirken?"></div>
+					<div class="subtitle" se="Du kan ju alltid ta en taxi eller buss men känns ju lättast att få skjuts av någon villig. Se till att mingla på fredagen om du fortfarande är osäker." en="You can always take a taxi or bus, but it seems easiest to get a ride from someone willing. Be sure to mingle on Friday if you are still unsure." no="Du kan alltid ta en taxi eller buss, men det virker lettest å få skyss fra noen villige. Sørg for å mingle på fredag hvis du fortsatt er usikker."></div>
+				</div>
+
+				<div class="paper" id="accspec">
+					<div class="formula">👶</div>
+					<div class="title" se="Är det okej om jag tar med mitt barn?" en="Is it okay if I bring my child?" no="Er det greit om jeg tar med barnet mitt?"></div>
+					<div class="subtitle" se="Hela lördagen är barnfri (dvs kyrkan, brudskålen och middagen) men på fredagsgrillnignen kan de såklart få vara med!" en="The entire Saturday is child-free (i.e., the church, the bridal toast, and the dinner), but they can of course join the Friday barbecue." no="Hele lørdagen er barnefri (dvs. kirken, brudeskålen og middagen), men de kan fint være med på fredagsgrillingen"></div>
+				</div>
+
+				<div class="paper" id="bokaboende">
+					<div class="formula">🏠</div>
+					<div class="title" se="Ska jag kontakta Amanda eller Simon för att boka boende?" en="Should I contact Amanda or Simon to book accommodation?" no="Skal jeg kontakte Amanda eller Simon for å bestille overnatting?"></div>
+					<div class="subtitle" se="Trickfråga! Boka själv med infon ovan!" en="Trick question! Book yourself with the info above!" no="Lur spørsmål! Bestill selv med infoen ovenfor!"></div>
+				</div>
+		
+			</div>
+			<div class="column">
+				
+				<div class="paper" id="blurop">
+					<div class="formula">🎁</div>
+					<div class="title" se="Måste jag ha en present?" en="Do I need to have a present?" no="Må jeg ha en gave?"></div>
+					<div class="subtitle" se="nej :(" en="no :(" no="nei :("></div>
+				</div>
+				
+				<div class="paper" id="minimizers">
+					<div class="formula">👗👔</div>
+					<div class="title" se="Vad är dresscoden?" en="What is the dress code?" no="Hva er kleskoden?"></div>
+					<div class="subtitle" se="Standard sommar bröllop - medium rare. Det är ingen nobelfest direkt men lämna gärna shortsen och tank-topsen hemma. Tänk cocktail attire - vi försöker inte återuppfinna hjulet här." en="Standard summer wedding - medium rare. It's not a Nobel party, but leave the shorts and tank tops at home. Think cocktail attire - we're not trying to reinvent the wheel here." no="Standard sommerbryllup - medium rare. Det er ikke en Nobel-fest, men la shorts og tank-topper ligge hjemme. Tenk cocktailantrekk - vi prøver ikke å finne opp hjulet på nytt her."></div>
+				</div>
+		
+				<div class="paper" id="fotakyrka">
+					<div class="formula">📸</div>
+					<div class="title" se="Får jag fota i kyrkan?" en="Can I take pictures in the church?" no="Kan jeg ta bilder i kirken?"></div>
+					<div class="subtitle" se="Vi har fotograf i kyrkan så det är nog lungt men inte hela världen om BeReal skulle timea. Allting kommer läggas upp på ett Google Photos album här sen också." en="We have a photographer in the church so it's probably fine, but not the end of the world if BeReal should time it. Everything will be uploaded to a Google Photos album here later too." no="Vi har en fotograf i kirken, så det går nok bra, men det er ikke verdens ende om BeReal skulle time det. Alt blir lastet opp på et Google Photos-album her senere også."></div>
+				</div>
+		
+				<div class="paper" id="bilder">
+					<div class="formula">📸</div>
+					<div class="title" se="Finns det något mer jag borde veta om bilder?" en="Is there anything else I should know about pictures?" no="Er det noe mer jeg bør vite om bilder?"></div>
+					<div class="subtitle" se="Vi kommer be alla posta sina bilder i en Google Photos mapp sen efteråt" en="We will ask everyone to post their pictures in a Google Photos folder afterwards" no="Vi vil be alle legge ut bildene sine i en Google Photos-mappe etterpå"></div>
+				</div>
+
+				<div class="paper" id="lunch">
+					<div class="formula">🍽️</div>
+					<div class="title" se="Vad blir det för lunch på lördag?" en="What will be for lunch on Saturday?" no="Hva blir det til lunsj på lørdag?"></div>
+					<div class="subtitle" se="Det är helt upp till dig, vi organiserar inget men se till att i alla fall få i dig en korv!" en="It's entirely up to you, we don't organize anything but make sure to at least get a sausage!" no="Det er helt opp til deg, vi organiserer ingenting, men sørg for å i det minste få en pølse!"></div>
+				</div>
+
+				<div class="paper" id="tal">
+					<div class="formula">🎙️</div>
+					<div class="title" se="Får jag hålla tal under middagen?" en="Can I give a speech during dinner?" no="Kan jeg holde tale under middagen?"></div>
+					<div class="subtitle" se="Självklart! Vi blir bara glada, men vill helst inte veta om det i förväg så kontakta en av våra toastmasters istället!" en="Of course! We are only happy, but prefer not to know in advance so contact one of our toastmasters instead!" no="Selvfølgelig! Vi blir bare glade, men vil helst ikke vite på forhånd, så kontakt en av toastmasterne våre i stedet!"></div>
+				</div>
+
+				<div class="paper" id="toastmaster">
+					<div class="formula">🍞</div>
+					<div class="title" se="Vem är toastmaster?" en="Who is the toastmaster?" no="Hvem er toastmasteren?"></div>
+					<div class="subtitle" se="Detta avslöjas i vårt nyhetsbrev" en="This will be revealed in our newsletter" no="Dette vil bli avslørt i vårt nyhetsbrev"></div>
+				</div>
+
+				<div class="paper" id="osa_faq">
+					<div class="formula">📩</div>
+					<div class="title" se="När ska jag OSA?" en="Når bør jeg gi svar på invitasjonen?" no="When should I RSVP?"></div>
+					<div class="subtitle" se="Så snart som möjligt, senast 10 Mars" en="As soon as possible, no later than March 10th" no="Så snart som mulig, senest 10. mars"></div>
+				</div>
+
+			</div>
+		</div>
+	</section>
+
+	<section>
+		<div class="talks centering">
+			<hr class="squiggly-line">
+			<h1 id="osa" se="Kontakt" en="Contact" no="Kontakt"></h1>
+			<span se="Har du fler saker du funderar på eller några oklara formuleringar? Hör du av dig till oss via mail, SMS eller Messenger." en="Do you have more things you are wondering about or any unclear formulations? Contact us via email, SMS or Messenger." no="Har du flere ting du lurer på eller noen uklare formuleringer? Kontakt oss via e-post, SMS eller Messenger."></span>
+			<br><br>
+			<b se="Amanda:" en="Amanda:" no="Amanda:"></b> <span class="mono">[<span se="förnamn" en="first name" no="fornavn"></span>].[<span se="efternamn" en="last name" no="etternavn"></span>]@outlook.com &nbsp;-&nbsp;+47 461 13 869 </span> <br>
+			<b se="Simon:" en="Simon:" no="Simon:"></b> <span class="mono">[<span se="förnamn" en="first name" no="fornavn"></span>][<span se="efternamn" en="last name" no="etternavn"></span>]@gmail.com &nbsp;-&nbsp;+47 461 26 170 </span> <br>
+			<br><br><br><br>			
+		</div>
+	</section>
+
+	<script>
+		const canvas = document.querySelector("#diffusion_canvas");
+		const ctx = canvas.getContext("2d");
+
+		const img = document.querySelector("#cutepics");
+		let imgid = 0;
+		const totalimgs = 3;
+
+		function generateNoise(ctx, width, height, alpha) {
+			const imageData = ctx.createImageData(width, height);
+			for (let i = 0; i < imageData.data.length; i += 4) {
+				const value = Math.random() * 255;
+				imageData.data[i] = value; // Red
+				imageData.data[i + 1] = value; // Green
+				imageData.data[i + 2] = value; // Blue
+				imageData.data[i + 3] = alpha; // Alpha
+			}
+			return imageData;
+		}
+
+		function animateNoise(ctx, width, height, callback) {
+			let alpha = 0;
+			const interval = 30;
+			const step = 255 / (500 / interval);
+
+			function draw() {
+				if (alpha < 255) {
+					alpha += step;
+					if (alpha > 255) alpha = 255;
+					const noise = generateNoise(ctx, width, height, alpha);
+					ctx.putImageData(noise, 0, 0);
+					requestAnimationFrame(draw);
+				} else {
+					callback();
+				}
+			}
+			draw();
+		}
+
+		function clearNoise(ctx, width, height, callback) {
+			let alpha = 255;
+			const interval = 30;
+			const step = 255 / (500 / interval);
+
+			function clear() {
+				if (alpha > 0) {
+					alpha -= step;
+					if (alpha < 0) alpha = 0;
+					const noise = generateNoise(ctx, width, height, alpha);
+					ctx.putImageData(noise, 0, 0);
+					requestAnimationFrame(clear);
+				} else {
+					callback();
+				}
+			}
+			clear();
+		}
+
+		let images = [
+    "80svibes.jpg",
+    "Stekarn.jpg",
+    "Tandborste.jpg",
+    "alesund.jpg",
+    "antonstudent1.jpg",
+    "antonstudent2.jpg",
+    "bal1.jpg",
+    "balfin.jpg",
+    "balkul.jpg",
+    "balutanfriends.jpg",
+    "berlin.jpg",
+    "biltur1.jpg",
+    "biltur2.jpg",
+    "brollopskoj.jpg",
+    "bybro.jpg",
+    "camping.jpg",
+    "dimondhead.jpg",
+    "engaged.jpg",
+    "NoErica.jpg",
+    "ferratatopp.jpg",
+    "firsthike.jpg",
+    "funontheiceagain.jpg",
+    "havstein.jpg",
+    "hawaiinyar.jpg",
+    "hawaiitur.jpg",
+    "hawaiitur2.jpg",
+    "iceicebaby.jpg",
+    "ihissen.jpg",
+    "jul.jpg",
+    "jul1.jpg",
+    "julkortkanada.jpg",
+    "julkortnorge.jpg",
+    "kandidat.jpg",
+    "masterklar.jpg",
+    "midsommar.jpg",
+    "nissarna.jpg",
+    "norgetur1.jpg",
+    "norrsken.jpg",
+    "ntnuSol.jpg",
+    "nyar.jpg",
+    "nyar2.jpg",
+    "ontheiceice.jpg",
+    "ontheroad.jpg",
+    "pinapple.jpg",
+    "redcharis.jpg",
+    "selfiisolen.jpg",
+    "simonbursdag.jpg",
+    "smafolk.jpg",
+    "smugehuk.jpg",
+    "soltur.jpg",
+    "sotsimon.jpg",
+    "teams.jpg",
+    "tobeengaged.jpg",
+    "usboarder.jpg",
+    "utanforkandidat.jpg",
+    "viaferata.jpg",
+    "wienkjol.jpg",
+    "wolflake.jpg",
+    "wtf.jpg",
+    "sidewalk.jpg"
+];
+
+		function changeImage() {
+			animateNoise(ctx, canvas.width, canvas.height, () => {
+				let new_idx = Math.floor(Math.random() * images.length)
+				if (new_idx == idx) {
+					new_idx = Math.floor(Math.random() * images.length);
+				}
+				idx = new_idx;
+				img.src = "Photos/" + images[idx];
+				img.onload = () => {
+					clearNoise(ctx, canvas.width, canvas.height, () => {});
+				};
+			});
+		}
+
+		let idx = Math.floor(Math.random() * images.length)
+		img.src = "Photos/" + images[idx];
+
+		setInterval(changeImage, 5000);
+
+		function updateLanguage(langCode) {
+			const attributeNames = ['se', 'no', 'en'];
+
+			const elements = document.querySelectorAll(
+				attributeNames.map(attr => `[${attr}]`).join(',')
+			);
+
+			elements.forEach(element => {
+				const attrName = `${langCode}`;
+				if (element.hasAttribute(attrName)) {
+					element.textContent = element.getAttribute(attrName);
+				}
+			});
+		}
+
+		updateLanguage("se")
+
+		function updateCountdown() {
+            const countdownElement = document.getElementById('countdown');
+            const targetDate = new Date();
+			targetDate.setFullYear(2025)
+            targetDate.setMonth(5); // June is month 5 (0-indexed)
+            targetDate.setDate(28);
+            targetDate.setHours(15, 0, 0, 0);
+
+            const now = new Date();
+            const timeDifference = targetDate - now;
+
+            if (timeDifference > 0) {
+                const days = Math.floor(timeDifference / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((timeDifference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((timeDifference % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((timeDifference % (1000 * 60)) / 1000);
+
+                countdownElement.innerHTML = `${days}d ${hours}h ${minutes}m ${seconds}s`;
+            } else {
+                countdownElement.innerHTML = "The target date has passed.";
+            }
+        }
+
+        updateCountdown();
+        setInterval(updateCountdown, 1000);
+
+		const currentPath = window.location.pathname;
+		const queryString = window.location.search;
+		const urlParams = new URLSearchParams(queryString);
+
+		const id = urlParams.get('id');
+		const lang = urlParams.get('lang')
+
+		updateLanguage(lang)
+
+		const url = 'https://jade-earthy-gigantspinosaurus.glitch.me/' + id;
+
+		fetch(url)
+		.then(response => {
+			if (!response.ok) {
+			throw new Error('Network response was not ok ' + response.statusText);
+			}
+			return response.json();
+		})
+		.then(data => {
+			const result = data;
+			console.log(result);
+			if (result) {
+				document.querySelector("#welcome_moddle").innerHtml = " "
+				document.querySelector("#welcome_name").innerHTML = result + "!";
+			}
+		})
+		.catch(error => {
+			console.error('There has been a problem with your fetch operation:', error);
+		});
+	</script>
+
+	<!-- MAILCHIMP -->
+
+	<script>
+	    // Function to open the popup
+	    function openPopup() {
+	        const modal = document.getElementById('mc_embed_signup_modal');
+	        if (modal) {
+	            modal.style.display = 'block';
+	        } else {
+	            console.error('Modal element not found!');
+	        }
+	    }
+
+	    // Function to close the popup
+	    function closePopup() {
+	        const modal = document.getElementById('mc_embed_signup_modal');
+	        if (modal) {
+	            modal.style.display = 'none';
+	        } else {
+	            console.error('Modal element not found!');
+	        }
+	    }
+
+	    // Function to update modal language
+	    function updateLanguageModal(langCode) {
+	        const attributeNames = ['se', 'en', 'no']; // Add more language codes as needed
+
+	        const elements = document.querySelectorAll(
+	            attributeNames.map(attr => `[${attr}]`).join(',')
+	        );
+
+	        elements.forEach(element => {
+	            const attrName = `${langCode}`;
+	            if (element.hasAttribute(attrName)) {
+	                element.innerHTML = element.getAttribute(attrName);
+	            }
+	        });
+	    }
+
+	    // Example function to update the whole page language including the modal
+	    let currentLanguage = 'se'; // Default language
+
+	    function updateLanguage(langCode) {
+	        currentLanguage = langCode; // Update the current language
+
+	        const attributeNames = ['se', 'no', 'en'];
+
+	        const elements = document.querySelectorAll(
+	            attributeNames.map(attr => `[${attr}]`).join(',')
+	        );
+
+	        elements.forEach(element => {
+	            const attrName = `${langCode}`;
+	            if (element.hasAttribute(attrName)) {
+	                element.innerHTML = element.getAttribute(attrName);
+	            }
+	        });
+
+	        // Update the modal language as well
+	        updateLanguageModal(langCode);
+	    }
+
+	    // Close the modal when clicking outside of it
+	    window.onclick = function(event) {
+	        const modal = document.getElementById('mc_embed_signup_modal');
+	        if (event.target == modal) {
+	            modal.style.display = 'none';
+	        }
+	    };
+
+	    document.addEventListener("DOMContentLoaded", function() {
+	        document.getElementById('mc-embedded-subscribe-form').addEventListener('submit', function(event) {
+	            event.preventDefault();
+	            const form = event.target;
+	            const formData = new FormData(form);
+	            const xhr = new XMLHttpRequest();
+	            xhr.open('POST', form.action);
+	            xhr.onreadystatechange = function() {
+	                if (xhr.readyState === XMLHttpRequest.DONE) {
+	                    if (xhr.status === 200) {
+	                        // Hide the form and show the success message
+	                        document.getElementById('mc_embed_signup').style.display = 'none';
+	                        document.getElementById('success-message').style.display = 'block';
+	                    } else {
+	                        // Handle errors here
+	                        console.error('Form submission failed:', xhr.responseText);
+	                    }
+	                }
+	            };
+	            xhr.send(formData);
+	        });
+	    });
+	</script>
+
+</body>
+</html>
