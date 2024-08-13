@@ -564,7 +564,7 @@
 				console.log(result);
 				if (result) {
 					document.querySelector("#welcome_middle").innerHtml = " "
-					document.querySelector("#welcome_name").innerHTML = result.value + "!";
+					document.querySelector("#welcome_name").innerHTML = result.value.toString() + "!";
 				}
 			})
 			.catch(error => {
