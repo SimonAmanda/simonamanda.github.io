@@ -93,9 +93,14 @@
 	                </div>
 	            </form>
 	            <div id="success-message" style="display: none; text-align: center;">
-	                <h2>Successful</h2>
-	                <button onclick="closePopup()">Close</button>
-	            </div>
+					<h2 se="Grattis, du har prenumererat på vårt nyhetsbrev!" 
+						en="Congratulations, you have subscribed to our newsletter!" 
+						no="Gratulerer, du har abonnert på vårt nyhetsbrev!">
+						<!-- Default text, which will be replaced by JS -->
+					</h2>
+					<button onclick="closePopup()">Close</button>
+				</div>
+				
 	        </div>
 	    </div>
 	</div>
@@ -572,96 +577,104 @@
 	<!-- MAILCHIMP -->
 
 	<script>
-	    // Function to open the popup
-	    function openPopup() {
-	        const modal = document.getElementById('mc_embed_signup_modal');
-	        if (modal) {
-	            modal.style.display = 'block';
-	        } else {
-	            console.error('Modal element not found!');
-	        }
-	    }
-
-	    // Function to close the popup
-	    function closePopup() {
-	        const modal = document.getElementById('mc_embed_signup_modal');
-	        if (modal) {
-	            modal.style.display = 'none';
-	        } else {
-	            console.error('Modal element not found!');
-	        }
-	    }
-
-	    // Function to update modal language
-	    function updateLanguageModal(langCode) {
-	        const attributeNames = ['se', 'en', 'no']; // Add more language codes as needed
-
-	        const elements = document.querySelectorAll(
-	            attributeNames.map(attr => `[${attr}]`).join(',')
-	        );
-
-	        elements.forEach(element => {
-	            const attrName = `${langCode}`;
-	            if (element.hasAttribute(attrName)) {
-	                element.innerHTML = element.getAttribute(attrName);
-	            }
-	        });
-	    }
-
-	    // Example function to update the whole page language including the modal
-	    let currentLanguage = 'se'; // Default language
-
-	    function updateLanguage(langCode) {
-	        currentLanguage = langCode; // Update the current language
-
-	        const attributeNames = ['se', 'no', 'en'];
-
-	        const elements = document.querySelectorAll(
-	            attributeNames.map(attr => `[${attr}]`).join(',')
-	        );
-
-	        elements.forEach(element => {
-	            const attrName = `${langCode}`;
-	            if (element.hasAttribute(attrName)) {
-	                element.innerHTML = element.getAttribute(attrName);
-	            }
-	        });
-
-	        // Update the modal language as well
-	        updateLanguageModal(langCode);
-	    }
-
-	    // Close the modal when clicking outside of it
-	    window.onclick = function(event) {
-	        const modal = document.getElementById('mc_embed_signup_modal');
-	        if (event.target == modal) {
-	            modal.style.display = 'none';
-	        }
-	    };
-
-	    document.addEventListener("DOMContentLoaded", function() {
-	        document.getElementById('mc-embedded-subscribe-form').addEventListener('submit', function(event) {
-	            event.preventDefault();
-	            const form = event.target;
-	            const formData = new FormData(form);
-	            const xhr = new XMLHttpRequest();
-	            xhr.open('POST', form.action);
-	            xhr.onreadystatechange = function() {
-	                if (xhr.readyState === XMLHttpRequest.DONE) {
-	                    if (xhr.status === 200) {
-	                        // Hide the form and show the success message
-	                        document.getElementById('mc_embed_signup').style.display = 'none';
-	                        document.getElementById('success-message').style.display = 'block';
-	                    } else {
-	                        // Handle errors here
-	                        console.error('Form submission failed:', xhr.responseText);
-	                    }
-	                }
-	            };
-	            xhr.send(formData);
-	        });
-	    });
+		// Function to open the popup
+		function openPopup() {
+			const modal = document.getElementById('mc_embed_signup_modal');
+			if (modal) {
+				modal.style.display = 'block';
+			} else {
+				console.error('Modal element not found!');
+			}
+		}
+	
+		// Function to close the popup
+		function closePopup() {
+			const modal = document.getElementById('mc_embed_signup_modal');
+			if (modal) {
+				modal.style.display = 'none';
+			} else {
+				console.error('Modal element not found!');
+			}
+		}
+	
+		// Function to update modal language
+		function updateLanguageModal(langCode) {
+			const attributeNames = ['se', 'en', 'no']; // Add more language codes as needed
+	
+			const elements = document.querySelectorAll(
+				attributeNames.map(attr => `[${attr}]`).join(',')
+			);
+	
+			elements.forEach(element => {
+				const attrName = `${langCode}`;
+				if (element.hasAttribute(attrName)) {
+					element.innerHTML = element.getAttribute(attrName);
+				}
+			});
+	
+			// Update the success message language as well
+			const successMessage = document.querySelector('#success-message h2');
+			if (successMessage && successMessage.hasAttribute(langCode)) {
+				successMessage.innerHTML = successMessage.getAttribute(langCode);
+			}
+		}
+	
+		// Example function to update the whole page language including the modal
+		let currentLanguage = 'se'; // Default language
+	
+		function updateLanguage(langCode) {
+			currentLanguage = langCode; // Update the current language
+	
+			const attributeNames = ['se', 'no', 'en'];
+	
+			const elements = document.querySelectorAll(
+				attributeNames.map(attr => `[${attr}]`).join(',')
+			);
+	
+			elements.forEach(element => {
+				const attrName = `${langCode}`;
+				if (element.hasAttribute(attrName)) {
+					element.innerHTML = element.getAttribute(attrName);
+				}
+			});
+	
+			// Update the modal language as well
+			updateLanguageModal(langCode);
+		}
+	
+		// Close the modal when clicking outside of it
+		window.onclick = function(event) {
+			const modal = document.getElementById('mc_embed_signup_modal');
+			if (event.target == modal) {
+				modal.style.display = 'none';
+			}
+		};
+	
+		document.addEventListener("DOMContentLoaded", function() {
+			const form = document.getElementById('mc-embedded-subscribe-form');
+			form.addEventListener('submit', function(event) {
+				event.preventDefault();
+				const formData = new FormData(form);
+	
+				// Use fetch API instead of XMLHttpRequest for cleaner code
+				fetch(form.action, {
+					method: 'POST',
+					body: formData,
+					mode: 'no-cors' // Required for cross-origin requests without expecting a response
+				})
+				.then(response => {
+					// Assume success since no-cors doesn't allow for a real response
+					document.getElementById('mc-embedded-subscribe-form').style.display = 'none';
+					document.getElementById('success-message').style.display = 'block';
+					updateLanguageModal(currentLanguage); // Update the success message text based on the current language
+				})
+				.catch(error => {
+					console.error('Form submission failed:', error);
+				});
+			});
+		});
 	</script>
+	
 
 </body>
 </html>
