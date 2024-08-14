@@ -558,6 +558,11 @@ h1 {
     overflow: hidden;
 }
 
+@media screen and (max-width: 774px) {
+    #cutepics_container {
+        width: 700px;
+    }
+}
 
 #diffusion_canvas {
     position: absolute;
