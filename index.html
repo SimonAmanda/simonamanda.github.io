@@ -51,7 +51,7 @@
 			<span se="Inte långt kvar nu!" en="Not long left now!" no="Ikke lenge igjen nå!"></span>
 			<br><br>
 			<b se="Vigsel om:" en="Ceremony in:" no="Seremoni om:"></b>
-			<div class="mono" id="countdown">test</div>
+			<div class="mono" id="countdown"></div>
 		</p>
 	</section>
 
@@ -493,158 +493,6 @@
 
 		updateLanguage(lang)
 
-
-
-
-
-		async function encrypt(keyString, data) {
-			const keyBuffer = new TextEncoder().encode(keyString);
-			const dataBuffer = new TextEncoder().encode(data);
-
-			const keyMaterial = await crypto.subtle.importKey(
-				'raw', 
-				keyBuffer, 
-				{ name: 'PBKDF2' }, 
-				false, 
-				['deriveKey']
-			);
-
-			const key = await crypto.subtle.deriveKey(
-				{
-					name: 'PBKDF2',
-					salt: new TextEncoder().encode('unique_salt'), 
-					iterations: 100000,
-					hash: 'SHA-256'
-				},
-				keyMaterial,
-				{ name: 'AES-GCM', length: 256 },
-				true,
-				['encrypt', 'decrypt']
-			);
-
-			// iv = 42069 ger 2.5mb långa hash... beklagar
-			const iv = crypto.getRandomValues(new Uint8Array(69));
-
-			const encryptedData = await crypto.subtle.encrypt(
-				{
-					name: 'AES-GCM',
-					iv: iv
-				},
-				key,
-				dataBuffer
-			);
-
-			const ivBase64 = btoa(String.fromCharCode(...new Uint8Array(iv)));
-			const encryptedDataBase64 = btoa(String.fromCharCode(...new Uint8Array(encryptedData)));
-
-			return `${ivBase64}:${encryptedDataBase64}`;
-		}
-
-		async function decrypt(keyString, encryptedData) {
-			const [ivBase64, encryptedDataBase64] = encryptedData.split(':');
-
-			const iv = Uint8Array.from(atob(ivBase64), c => c.charCodeAt(0));
-			const encryptedBuffer = Uint8Array.from(atob(encryptedDataBase64), c => c.charCodeAt(0));
-
-			const keyBuffer = new TextEncoder().encode(keyString);
-
-			const keyMaterial = await crypto.subtle.importKey(
-				'raw',
-				keyBuffer,
-				{ name: 'PBKDF2' },
-				false,
-				['deriveKey']
-			);
-
-			const key = await crypto.subtle.deriveKey(
-				{
-					name: 'PBKDF2',
-					salt: new TextEncoder().encode('unique_salt'), 
-					iterations: 100000,
-					hash: 'SHA-256'
-				},
-				keyMaterial,
-				{ name: 'AES-GCM', length: 256 },
-				true,
-				['encrypt', 'decrypt']
-			);
-
-			const decryptedData = await crypto.subtle.decrypt(
-				{
-					name: 'AES-GCM',
-					iv: iv
-				},
-				key,
-				encryptedBuffer
-			);
-
-			return new TextDecoder().decode(decryptedData);
-		}
-
-		const secrets = [
-"sXCkQ1+C5SUDE0nF8hkZvhF5A9DouI11EFrbWLOQz87cxPZa62+jleUb6jWSypYohYdo7MemhTHEiDGjKpit8PuqVPE6:ebOE/56fw8VNaJeEY3pkeJLJ7BWwNhL2zdlfRg+nQAUtKV//dibsxIGnuA==",
-"4+fQjsZglW2IbsW5RnG8WnEhxfTG4OSaAR0d9IKz+yEbESau0wearS+bvE3vocR9Ugv0o09/1EPXPvgx9bVNfGnpx89q:bnWv9wczZkeE0Gapv8qkF9m8zAPCpcOye+8vTtTXSwl7zUukkd/5neGJ5k8=",
-"rvnm6swLDvT1EpQBrLOCY6b7ipjZHEB+k/krQvMz1JlcQyr/aH5Y0gBG/JCEBx66B0EBE6StgBQZ2LYHCKSPKHEw2ajt:bys37stGKm6Nb7fqx98FJpbEqgjeghjmweFHPquuxIipvxLlE6jO8JkPKolaUg==",
-"NA7/YdutMsll9+KaFRHMk/EvvzLSam+ouyYA8SwS2GSf9w7G3/j5oeoAdfCq6jOe1CT/kl7b7rk0gWWxdBP2tMQb7Zew:0GJa99vJOV09bxjoLbwcGzgc+oiX1FVq56NRTxNbKpCAiZ2Ma5M1",
-"RAhQU3Bd/+y8ajhpOIuPxm6zo/WYsVn9aJdtUN2vDxvJM/4wfs/i9A7aYImu/by4IxJnvjhcuLHwWOh4g+x1Yy29O4Xf:y3HSA22ycF9mkwt3Hsyhsyc0Cv+dGOPDpT7q2Aah1BmXjATvpCyrMliK28M=",
-"DNt7D1nLq2N1HWRCvKJoIx4oh+yuphOjxbSSB5gAfOlVnm9MqhBoJmXJ/pZjrg7ZMWGXf79asp52iehwHGB94JPXM91P:U2UemYh3OAxtEfQWf7mPzHA3CN7Ee4C0ATge4IHvQgGFcPFL0G3v3H/F",
-"/4MHLK/RDjGF33BiumL6W+nRQTflCjpfpHpuz83BqIqCbG0Dm+BtcPRfEThGdq3n/fjPgA/lyux1nG4uycX9WkBvcUjX:hLel9srKj39+J0GzT1ReopbsVHzHOWVKbO6Wku804wPeDw==",
-"KUA3k/Fru0MgOLxCf+fBGxPe9gtW5tSzeXvcOPqI+6M+ez7oSWffqqQRWdn22lOnsLUnGdVpfhZUfRfBPNOE8E3ktZGH:vU4taJqdtIN42ZrPbCAALztxuX0JhO0Bs71SK+2VeANeyOU=",
-"mUAllN89y3SJGed+PyshAI89XB1Wb3awvf/36i7DUf5Nb5hSnLlQPSLgZnfrAdWouNR47Gxw7J0f7b7vZt56FcGcBjtC:av9cgEz+TOERdMS8WY/1F7EGEYHFVwBnHPG0jbNYa/pfZlKsFz8pxYDekA==",
-"4YeLVKcYFuFZPHJszeTEkAUpV7X5ILVF9ok8t1LauF6a12h2+ZleaXiS6InbdMzGJhtfVcoXJZ69l+xMcW/pK2ncLXik:TFCA0WpDmG7nT3MYlr3LOuw8u3tpEUhW0TqjcGE6A28J",
-"ftrqPxE6BsbeL6Stin88oCB7D6AgZ1UPVrfTkW/cq+DHap11cWcYN7U0TxVStLpCVdWSxd5HurNk/sWj3urmDTh/lsYo:rZNxrNacidd19BBbZo0faOJNTfCcLRtavwNgxLn4q4d2W4M=",
-"bfCQBOolh3v9HbIAfB4GS/0NcSXsBP0a7IU3sDX+q9YgDoN3bgS83VLRHkVUCaalDR8H0BT1a4yAhxeo1ied13ktOHIT:8YXbUXQ7d/OdotewnIKzuIKwOkdy+jWYJNx5EYw6LE69hB8hvpirANbL0pg=",
-"WSwr+5ooUAHTOzuDT4vJEL9CSOpDZBIwgylUuFZ99uBCqoMy9FG7MMzhJ+6oYFXL68ak6XL+FUgvkKGgfeYNVg2M/x+7:35iSwVe+sBqplGwy8DyI75U9bJkZaJ+AnxapyawvvANvmone",
-"8731nK9Lfn8IWzcvn/rcnX0E4LmD/n9KDdDjK5wuWwH15/6Pp0uo10x57MadA9QF5lfxPrKMjSDGzdJ29c4nUAIsBjjq:g+7yn1zZZjoKuwlZSirK2BI5Qpr816FZ9Up/S8hgIKQK+g==",
-"0E0mGRUkGmJJUpit3K7Az+DudGX9RBdmHBJ47qyirgqmFRmef2XnwyxfzbKl5v9grIv/hXsAwvMT94bmYKwzVInYCdE7:h1DAIPIT8DSkuW8u3wj/BmKqvgx8lgGaqDkaCuqPDbzrID+OgyCJ67fG5J2Mjw==",
-"MgqO3mUaDCq8uEsIdDB/OLJOHdrUBV3zR3ELmBdxnPJPLjHr1jA/BXFrF0CrY5bnAdQF+AjJLDlFigoAv56ebXXKCgtX:YE7dpCSL/iyNB86aFBfkTk66Gg0TODkGHz7L7YoRwAeI7JGrjuQ3pYhs",
-"rDwZHGYrojDfIZVtsPyMNywJmIKUSw3TsLeG/LCRccS0ca2KEwHsX9EmnJ442xpPMD2Ll6Erq52oSO3DvbP44T4rqQ2K:+iNysCEHm8oVrXaWhda7XCU+Os02gx70OrMh1O21PRIX3RS2PSnN5MWy",
-"gOigQWzXWBUERBzBS8EdNvJX01rxMWl3UdNJ/4sr5zEZY+JMFIOgm8DABh4Qt6gKK4dTTVruhrBpXHC5Dz9pHzKsy0Yi:xXUAo3tUNqpYoiIGe3vz7FwFq8DXG5QPFP7LY2LvFRsry4g=",
-"r+TCly1Gshg0v0XqTkmALoH9dM9hmpMEpjn2Q+F9EJM4gsrPBVvvEeM8CT33wZvTuZcUgftH5G4wDi/bPJPQkwlta2Lv:e+KWwY1WIQlbiaB4G6qSyoqkb6YiNo30Ve0QlXp+LU7+wQCJuC0CoMSGsIw=",
-"3AvwDSC/nFJOChtEVm5gzWPbDe9pZXeBVasyFVIcfzgFWZt6I1j4klXFXArf8BSl2lWpasMa8gi7zGUULWnTB9LlGVL+:xRfyZ/0TrpTgJs2GF9V18k5j2BlLrIdEToMMrE8+Obb13OdN2Wh7RDdlAQ==",
-"lJTOeY2Zj4yO3TXfve7+zDoTdxTX/LOkouKCl7n5M6sAAJakfwfZHyzLWRhpOLvsi3lgr2jOQbBv4jnY5vRgASG38Q1L:5fSJ5hva71t/0hoqfp3SWwSZ4wZkg/1KIdCvwywUw3AeJfAoGZklKF4=",
-"vidxW7P0yW3VHn3QQkl/l2bVGMYbMRTYrDOnS1XIp681z6s2iQjRNVk+slRSyWIusXH+76T88muz21wHnDsByKRxDFpL:GG9AN9VaKMtSIoSo4jvvQ0kgtGV6vKxC0Z4kYrgqFUey/sjKnpwzhSSc0XU=",
-"uNKJuNKCJZovTAcovH3fO61z9BMn1EC2bgo5XSu/Ew1/DjLKWRnYCRwjHDHbZVIPhGyUabfkLTKtfVRwDLLBy7BZX8UN:/2Da7bQD7PbtjMNmIzbm3/64QByMGTS/d9qufZCdG1Y3+zIdfpG3nKNH27U=",
-"2mbzvKm4b4aPHR9fqqK7Y3837JqW+5Ep+MIt64GLm4sSSP2Y/JfL/UkGsVy+Ts54XEBogwN6sBqeEHAEWeYzhVdHlz59:3ofgEdU3fXVAtp4YWoW+jbPGlcXHEZm/8WbExrLP1O5JiQ2Dx9q1QssN6U6w3oNaOBoAbmFomudMpTq1Vg3Nsaku592NwZB/lr5/rmj1Y08ncY18W4caaVQuZfha4g==",
-"IzAvSMW/my4EBIjZ/EKc8L1yOuQszYGt5Ks0iqXK3wgW/huQTamnDxsJm6EIecKA3bbg4S5+ZJAg79uznvP/gHIGbdhJ:vUwMA4KnHtQf+DlFIqxi3ijhef/XWXNqadrq/kv5lmDev38=",
-"UghmoPbAXW2daMCXqXIzgC+fnfYcL0ks9vzggIEnKcy5+WOCVzDaLaMnAzxpLig5B1j8BhPe8iHsvTxB+XN9iCHQOOVE:xsvA2KYtOWehRHSzpwjMkSywof04obZDpjpieOLzy114SG4=",
-"2vtU3NFLfJVtu5OT0HA8qY/lA2EJmx23O0BOCEXCApt4M1i0YW36V8yhgzhqyit8p22cByUa/laeMye/8kSzlU8Wrwqa:ZPdZ8bjghODc5JX87A7JdMEq+EoxPPcAU5P1TS7+vFbL",
-"0QSyVJ0u2NqFE8Zh3SmjT1MvZOCzv6mDlnRTHNX5sk1d3OfO+uBM+XtnhTSwRL7v9IFkLoMaO4TCfkVGvQwO7s5mErHr:jXHQzUDullpQvzG2tZ7ZoYlzLoAUcX1EyK9MoGRRyMEe0SGXXyH7H59j",
-"OF1sQopnxA4mqjIdG8ahX+peLPbz14H2CsLCFOcCXGbDgJVGB9rJV1Sas/KZ9lcHvRMcf5Y40O578c+ahNbRjUO+cUbf:7CsS+qrh+MWGUhnZQQsrzNBxkkUvd+vM1GLjJ5NmkAOi1pU=",
-"j9qGkF0BzEICN362tK+RYcfxCa7X+XjGP/3QUp1i0B8znFMnW4Baq2vZwT2zB8ga+++roFp5FDbTQSM3MfX8z5QntHg0:Lbe+mKgdi71tBeUU7SaXJw7emgRzuq3gOfkaAUP1byRpbkNUyGXq",
-"RLZor+8UK8iIu5L08K9d1tFI9Igw+jjP6E7v5MxhjqavtJ9O/BaQCsHwT9cOCraGzkU1mL49cPfhs+oN9VnLw7wpEkml:7mUEf9bbxC4qeHMxFyfeOGwBRwq+byWA/gt9mvcVY3q3Rw==",
-"vvGqJut8G7TH4RqqTyWLPgHDlXW0uA65B7aq5S0Qm1UY5ogYJQDn3oBhZlk024MkYmSFgLzwU0exkD+7sONvL8XJUmcW:HHA+z+0acvOC8KRcxRdvlacnY07frMcQPkJeUgdOi2+hL+I3",
-"9w+yKLxbj57OUVPbPEIJf2BNKyzlk+mX+d8K06MfA3mpnP876FOhITqttYSBGN4bv3e57jddmdYW3D96LKuBl0NCt7pO:W/PuXF6m0Ie6LnJDmCAWzM/VBolCJ3zGGtqyLvFe6l5kIn5OkuXwmtkdrAt8CcwWXa+8",
-"q6JlidPsCVmSJg3fzHlQI+N+sFQKSR4wtwqhG0mDXa6cFtLeSsCr8uWtkC7zerKklReQze8dF74jRfFmkWdTOHDjSi2y:ExwwKeT/392LYZuKXAkGBz1SamPszL2oWvirKtL9mwKxkQ==",
-"YSCnkWWwkAWo1JRFdeJJ3tMb65eRSuNVlyZkLvt8zvnDhNpR8Tf8xegfI0EKpKWyzKvosQoLvpSgzsLKouImIr08Y/zV:3qsmdesISz1kPcpm+FaxHNx/myWhTx31qPuQD7exbqut",
-"mhofeMw6Te61uUKd2A3sbW6JMYXRZhrWNjkRGrYVFCVF0HuT9prgAq5v0Iu73vDz/XUsGFQ5Qjgtbngw+qHSwH3IVq63:fySaDRwSakmU0pbLRO/P8PyZoHKT7JxjmGA1aTI/neJl8ss=",
-"XOLwUL4eRiPqwRg2nqkE4R3qImNSomBMpPETvOefynFe4eYpT6m4bRQBHIhVXXqWo9eKjag+19foVUJ3tu0GJd107+qR:P+Q7xq6O7GYkcgFEWHvgLg+w2wFKHLN1gYxMXni6vcNRIhIRytcZnCj2+FPV",
-"KAtd0pQ0etg6Xo4isvTADeQAn3b5bVyhRgRjyKrY5Rk0N/Cza44ejY2mT+E6ABr47i0G4YcNLpdTXaXhyUavvz8Y64r2:M5SwvcFHVBk17oT5IUfbQ4hJQ5SrchIxe87jqFvXnUlWqbc=",
-"uEDzAyN70h7leIlXcsao9BeszItDU4Xx1BTFwmXc6fQdx5G13/gqk1cclWqUQjYQICOiQwHQ+b+j4eaDi9HH7MZPlNPG:HGriaqeyy2JIaolHp5pQqPK+z0ts1auHrjEoWSITGgqG",
-"H73TbnKJU1EV2uGylSTb0sXp0f+66KcCXRkaNSgKEyY7p7jHQ2TFdeyaiJGLmLN1DYxwgGRvxLqHUPPZmTCj6bDRJ8QB:pdoZA1idzqirN1lCLDgkJ2czwWrkL70VyJGvXPoLkLIiMDoWKg==",
-"BipK/XX3G2XYPporxIa9ctKgobbLzsgeUQ2EFfN5fPq3jtq/RCSwCImroWjVDNctNp9mQhYE7QS4CXfanskWfJDSHx4a:C7aVTcXSOvTs++25sOFVKPHKd9gHoCYgbPq4hG9n6A0Aw7sm",
-"IBLJmfKw0zbitWgotiGvN0elkB2sB3YHGCRygC0n3nPmMqiAFYSgsK5658R0JyNX7lkrR082bDos/MFKS7+Ev8iAn6ZJ:H+e0OgdxHsWQd9DL5EZx2vYJT2F18kjAUUeSdns8HNkDFMfzt2w=",
-"J/dYWRYIXuE0+se9Uo9KjAVIT2/d2FxzMtw5TxKXzpcRp4M5W9X40V2Xeelqs3D5+uIhIgBimPDYsBgvj4njwE8tMhQ0:ekWRo/vAmd4gp7L2H+znXK8ZmX/oKG/elNGZF2ukZrATsb1N",
-"/9e50ZfkhtXc4YuGc+kl8Z9hfKfz/3r8rv2iytpegp0pkKkYPxlRhwKenQOa4c8Ulw9wegIcTxRPqGgLjSLOSkflbRhT:unztMpMpYoHRoTBEe2i4tOexwBLjFumoQDelWcyE6zi5eZY="
-];
-
-		(async () => {
-			for (const secret of secrets) {
-				try {
-					const decrypted = await decrypt(id, secret);
-
-					if (decrypted.toString().startsWith("good_decrypt:")) {
-						let name = decrypted.split(":")[1];
-
-						document.querySelector("#welcome_middle").innerHTML = " ";
-						document.querySelector("#welcome_name").innerHTML = name + "!";
-					}
-				} catch (error) {
-					//	console.error("Decryption failed:", error);
-				}
-			}
-		})();
-
 		
 	</script>
 
@@ -747,6 +595,158 @@
 				});
 			});
 		});
+	</script>
+
+	<script>
+		async function encrypt(keyString, data) {
+			const keyBuffer = new TextEncoder().encode(keyString);
+			const dataBuffer = new TextEncoder().encode(data);
+
+			const keyMaterial = await crypto.subtle.importKey(
+				'raw', 
+				keyBuffer, 
+				{ name: 'PBKDF2' }, 
+				false, 
+				['deriveKey']
+			);
+
+			const key = await crypto.subtle.deriveKey(
+				{
+					name: 'PBKDF2',
+					salt: new TextEncoder().encode('unique_salt'), 
+					iterations: 100000,
+					hash: 'SHA-256'
+				},
+				keyMaterial,
+				{ name: 'AES-GCM', length: 256 },
+				true,
+				['encrypt', 'decrypt']
+			);
+
+			// iv = 42069 ger 2.5mb långa hash... beklagar
+			const iv = crypto.getRandomValues(new Uint8Array(69));
+
+			const encryptedData = await crypto.subtle.encrypt(
+				{
+					name: 'AES-GCM',
+					iv: iv
+				},
+				key,
+				dataBuffer
+			);
+
+			const ivBase64 = btoa(String.fromCharCode(...new Uint8Array(iv)));
+			const encryptedDataBase64 = btoa(String.fromCharCode(...new Uint8Array(encryptedData)));
+
+			return `${ivBase64}:${encryptedDataBase64}`;
+		}
+
+		async function decrypt(keyString, encryptedData) {
+			const [ivBase64, encryptedDataBase64] = encryptedData.split(':');
+
+			const iv = Uint8Array.from(atob(ivBase64), c => c.charCodeAt(0));
+			const encryptedBuffer = Uint8Array.from(atob(encryptedDataBase64), c => c.charCodeAt(0));
+
+			const keyBuffer = new TextEncoder().encode(keyString);
+
+			const keyMaterial = await crypto.subtle.importKey(
+				'raw',
+				keyBuffer,
+				{ name: 'PBKDF2' },
+				false,
+				['deriveKey']
+			);
+
+			const key = await crypto.subtle.deriveKey(
+				{
+					name: 'PBKDF2',
+					salt: new TextEncoder().encode('unique_salt'), 
+					iterations: 100000,
+					hash: 'SHA-256'
+				},
+				keyMaterial,
+				{ name: 'AES-GCM', length: 256 },
+				true,
+				['encrypt', 'decrypt']
+			);
+
+			const decryptedData = await crypto.subtle.decrypt(
+				{
+					name: 'AES-GCM',
+					iv: iv
+				},
+				key,
+				encryptedBuffer
+			);
+
+			return new TextDecoder().decode(decryptedData);
+		}
+
+		const secrets = [
+"PAr/6B4bfE2k6XL09ldaJdLQba871nK3qcNT5vrOHqn5zBgXE+5NfiHGora8PQ3rFZhVNdVDj3xK0oQVK8rQM+5yDQ9R:u6GG+C2Q2V9pizQv8dhYVt9B8D4LNUksfwLhATXaRzQX0T5Oq48ZfQZV4A==",
+"FacKiF5mvNh4PntZzYx3er88U+ReftqzUiY1RJdGFOlcrfG2LaTdF/F7h6LhfFJVjenEDmreQrWjRtrUokcsRFmn1b1P:f/rO42SuA00fT9zSGq/tZPvjBZ1QmXIG3+KZnhCi4I2nRhm5u+NfzxZwfoI=",
+"Q0T7BhSyWhd8VUrL5Z9YQPs7AOfUcWYpX5VW4qUYzEXYmwnMmMp/vsyh1L3IH3VBrg9asUv1LNTWp0PQaH09Uat+nhE1:TvTx2vr2XJRHcntIld4ZosZtuO9w0zzdwC2XajlotK2fwyLepN+pAmD3mBX3PA==",
+"NF8Y0akwaUjZdOdNJG6a2NxWAgPkk0lkJIgB/ylKYh4njrtIinG8cmwhOGreBZCitWiRIilrsiyEIVCjeZr/joPDeVe5:FpwPuo6lJCFCqBIcQWDyLZV50b7ML4fI2jcvGTEYNvMha99ktoG7",
+"XTMbmSMzoYyrGl+6zXwAWwlak62xexxOijm5L8RoBgIex2RLFOOhtb22OCOZlWWRhZxI8zlfwfEm00IneHT1kjSh/Buf:x+tvDhUFju2lNf/haftgNVXghH7qfVygdmt4l8mZzrpy0eTqZ8MBuquTctE=",
+"osohSUTzb69QpmXEQavY8YpjPAbQMquzqILIo522Yjwo5Mjom7wfWUK2YX03Y95x9heE97EUw+Oy/dpejeL8+sbmJcnp:o7CdynVv7XbbyXEOtj5YmMUdlpAfrEA8SGGgfKCuA5Y6Z6c0L/sITQZb",
+"Co/8YCeHEbrjx1OW7d2QkFdTnlrpOBVB8o34wwY0CmW8lrI9EsUlKTe2a/rjo7JTmcCl5BodMYroPH/GGw2GOxUxC0Fn:VX7/MMi/CFDTjZSjON0HcF2u8MjsVz2VOBJVxOoHMZf7zw==",
+"dXqTnolGoruWt5BxJjDGxcday8oAmmSDCf7PYUAaPpAup6p3/q8gYvYafBn78cIsK187r4GVcuFFup18bDXZuq0/90Q5:T3quUTuQozxotp81rY0MJUyiz0nht8g1w71thSn0fXCJuvM=",
+"OSIkZSEmxfStd+8u/vO/TrelZoTb0GNZQDfQr4PTbQE+woBB7e9mvBqivLx7AQr8GPFlrr4fuZr7DkTYqVt2rJttT/ja:BVYfzhKP15U7AfrgutvnsXJ6QyfHHENm0bSiNMKAhIdGd7Pz93tlY4wpyg==",
+"CerO0D+s3xJrs5xS7HQizd7F6/Xy0upneDAGh6hpXzCyIE3LIHctQ64q12CuXzvG3wlY8KH27jQ1wkiXbJUFNrYBYHUW:ZoA38iUQ8bJmupYGq6Unlt+CwNGtmpny0P0I9ouzFArv",
+"XNtwhD51ZeBcgD2KD6YcNnMTF6bbgE9P1WbCI8AYP4g+2+lb3RvRQiFmPrqbSYA1CtyPqf1DtyRPFqf/4mAJU+ip7qmI:eiYBN33EJp5rb2Xy4wG/KtMFsEfjxYXXU7f84f5QFDUwH+g=",
+"9BIJavvfobI6TWysmjGAoTqdVGq2sUjJ5JqezXE7UsxGGrEFq7Jg7sVGDL2D+nvhtPAMx2Po+aAA9RGGQ6WOhgPXdGpQ:Zwk5YuMMQcmkv0EuCO4197hkenjAEODVCEKcBv0AgkqthakcfFO7PYPsFJY=",
+"yaYTJs7X5iwvnUoS83BKMCZyo+st1R4NI1WBailjaO0OLCmQMSEr37I6aucwORXe4ZtDI7+e1BOH+F1WkVLc9hYgFe1b:SN/05McQFcHgePt1LJXJA55V0bCOkgEaQaNTgNbWaMNRrQKy",
+"Mt9vckuY4YcMdtBU7SOUzFsxfmi6jGyTnh4FFiSrUcYWDNp5SSl1mbVfqy8alzAGf/yC8BnVKneE6W8L97k4wpiejjO0:qQcHHkhuXS9y0GAQyRQsG5/bFcqWtus2PAWwCf6+C6U6CA==",
+"9FceV095QpPmOgqr9/FXBIEsRBitKrnCgCyZ4tHIhHj1cg1XPEtKXm7pm71VW1oCH/lfeAVH/zk1Lc/o0T0paCoVFRU5:p4t8cyNCHCXv1ncbb0l4MaXPIYS2w3kCqs/infBynfv6LD4jUewODwEdebE1Vg==",
+"w2YrkHlEX8Wib35nFq8vi4U26mGAUs/afFQGWjjQK0XzCA6+G023XZ03n3u8O0PJ3o1TfXoIaohpeMI73eEvQyqWUGTx:zTOOCfzzJz/TpKh3S7lWGMIJVtF/C0lUOA6MtFDM45ptuNEKL1IYfYKt",
+"RgzfhzZ5k8w8F3WmlqQhmf8fkjOYcYxijsoMpJRuImAx1DKNZeaHrvP3bQgKUUrlg6WK6bzMJfPY0UNjbw/TyYh5eTUp:bPmpCWrqqdMsPftiZ/MjhBEQxwQRWIkjrPUTXPeyrqAOQgXdgsIMaQCE",
+"Lr81TM7Qln5oj/0IqVdk16cIUGZ17uvqmJUmO2RSaQf/ODoDWtnirZebpA2l0k5POUaonqJudCyXc8UQDjcwsGH8sbJm:WVdM36M3pLUxhvtgqU2UKFxXHmNU44CmPUleBu/MDtT0Xf0=",
+"9fEul8JuCroZ/cUaaeU6V94+X3GKHAbz5G8pjfOHYcwOzarVxO3H48qXyGMdqwKlS6leWFtlC082OKcaFdVfJ84AEQQ2:LfgpAh/tRYKQN0dU1g8m+w1cIwSYA2GfAQcX1Lvxlux5jHAMhdHPtpchKKQ=",
+"WEpidGAsA+YYQOnLr12g+OAPNaOSCXRAd6/2FZIANHac3/K64+E3gjghcmae1xH3HWJrgqr1gnF3+481BW4+g6ADvp2i:Kg5FWl4v2cj0VX+p9UbkMzfDxo0AmtAF+xgB6e9YBwOgwYOK2XfExUlenw==",
+"71/w6MSr1Ma7s5GhYLsDPtTv4NBs6KiRutqxUi9B2/P65hTr4nHNECXg6BIq+lfhwlfLrh58Ke1Ayy40SuhAFlm/JQO7:6OV7pFPhvv6+hwSJ7FZTFUdhM4JwbKZVpWgJkka7MfrFO3wEx3o3ieE=",
+"1a1L5L1/DFAgtd0mOXkAAf1CxNJmJax9CJ+sa2ly85TRrhGucnsRAnI1usYrIXnN+AYpGVOpAstoSt5sXeiVSspFYrY3:HZruj3z9bFo7PsQxKwS7LsI5cu2H60yMUH/IVIeBuvaDJ8jAJ+rmFRKZXtg=",
+"/JQnvPClTDdY3BexrmF3Up+Vr36IWDv0z1hvD11xNwIoE0i7trda8d+LoxMWKMxG3Bpza1JJcn+C1DS8QsbHva5WGtvr:N60RpwK62kfutciKTdt9H9JUqPoRCjfAe/9v/0r3PKCFPC31BTnkrubfCDI=",
+"C6l9gm3v958V9p1V779Sg1u4JtnwORcfktLGGtGr3qGpXm5J62VehSWvOTKF0sC/dBN/Ta7JJ9u1YpnMS2eHAeZYWves:Paiu1UzCqDU4EWoO0vHTLN9IejTn/5WaodRbohFw5g6Pz89YTxRrZ37Ef+LFkYO+YMjapY9CtKsKHz9KIj8+iHcmbfXXfRpD9Ihonhmaze4H+1rSbYblr0iQw5royA==",
+"1v7oK0Va8KyclxcSSNddm1lPm2tGHRtDParLZnKsP43wQs5fNMHQQB4v7DG8lQkUmm1vCPCyVzd+AiY93Is121czHPZI:jDwDhyLBXRwCyxBhZ65CO9ut3fclj4kiFplUGtJ1dJEJgqw=",
+"BXRv7AzW1cso4szUac963JH0yaL5T3AEWgjxlAG905KXQso/OHA+Dw6hcaQKymKjSzTBr92kvPZ7i+HfY4o/jdgKTtPY:qkcKOpIVt0X0z5qmHe9fxwL6wB9cMCqVkV+U4aG9AFtrCaY=",
+"zvKv1FF1Z82KD6edbmeFx/0saoVbfkG3gDyAM7c6tUwDnFXJXEu8NUSt/TgR6jiC/LcNsg7JzqMuAHmVsF3Iyr0e/Exd:ALa2rh5ySBQ+S92tsECvtbdDwlrLTF9T2r4DaAO6NRoN",
+"V9WYdcspixYjcw4qnsrZ/zj4s94VL3tzbAYwisKFFmNycWbiR0IFr6qqxvhzBZvQaMDZvQbwTYl8VhnDWYb/sgMEF/c4:mFwAV9pnSrTSH23RN5+Bbm9J/iugAwO7xG+wmCrTs5eZhWIm4tKxYT11",
+"0jDwj/ZCAIAkF37vGrXS1GH1TiV9zFeBp4nkPsADhOc7Ryd09blYBR/d9OX4S/oErRDjnIjJDFfoTe7PT8Dmc1I62kEz:EMJ46UwnwsCF1DdglhkYzqLacQUx/y7Y/W7ZlZU/xDJOPw4=",
+"gdxa3ZsfjgvJ/oTI9H6DU3vTFQNcA+djGfQSRlmMszB40M7j3j1AidtCTWE0rGxDnHrf5wjehGdB3pKJeXAYZwFiGziL:9Mue4Xu4E7d4tU9BGtEohKodaTp4DJ1AMcPaminMiMzqqR9KsSSk",
+"lCu6fie+Cc6bLLE28oHDtjSbwYCGqes3P5pe9cpOZujZtesc9w6VGILiOAgz2zDXPlWNvsT/lO/Sbjpp+zyCzxQ2If/d:Pixxlj2EyyInrm0J5IdmHRMnXLuYHl2K6wNyJubOhVAejw==",
+"HZOXmNNc/tKwGf1trXcduNYp3zF8l9qnEGo4p4kYAmnWgSRb3x14TO1taAfX/OWFjVaeJC0OSedDAYGdkNpLAe2U65hk:2tbWtx7FaxMwdyWx9RXIta2QsEegHE2LGe35nQivSUjkZYTB",
+"zTYOHJb6JnMte9qtzVxo04Qp8VNxc0ll0rDjROKlt6r8FkmSHHaHW0wVF9lLgwvYdJshftTLi7OTGEV0Rvmvpgx0jRE7:mZSPebCSnOkBYyaGrY8Wc5mOd0LvmdavayRJm6TqryymO5UQcDbGc7AYjzXHp9CsTVbz",
+"c5oJhRMTG2XaQwxY+XiQmVsEKjvMuLqkDAzS/5X29Y5hXh+TeMLl3tJPbIX7NYBDaSoW1YRd0/cMHo53eQqkSJQf/vWy:9/cJE/df722B15V88CtctUcfSFFMB7JGgO26MTpG54xOUw==",
+"I0W+O7tvBkoyOeXQtFTvz3oTypISDmOsVrxCPGPLVshGLFVJutHmSlmo6GrpvDpI9lhWLzz8DHl/y2tKWlkX3JTPbN0K:EUNKjihMjUbSJBrwkgj89wOf0EBAo6YAJIhD8/dTfryw",
+"PEoKTQUfj8n3F5EEoL1kqinxn702WQFciQlz2WmVZNPnwgD42nx25BHewbwzaIsqcB07ouWP1WIKwGSu/JImK3XpTSPG:u8pFIVVBm8KUpCJo0cWhXgKmci702188AhShMVg26lxHqSE=",
+"vjidOphycOO1gFt6TB6z69yz+boGEKZY1dwzPCLj0/hGSHoo6DiXKFwIG45suKw0yJUe8N5NPyNhWaCwuV83u6oac4fd:Y3GMQvkr+fLzOqVgK7GGt+RTOQjYz86G/lp9zc9bAt4ycKVZ8PO2pnIekwQA",
+"frQDNkLuW+aRr9vBUZMfqincBoOYJN5b0ljLRDSolPR0q7SKBn1aExUAmv//QxN1Pea9lsYU8v5Y/rztG6i/i+0lJRh8:Rve61YDB7ZSP0nWgWBPLBLzfjVaCRfv3XckE3dTBoSO+pgU=",
+"HeoStNjizNKrdiJP2MHLFLFzoXPQdR7mJo/s7ygI8SS9sB2uLD+3X6DvM7XpypRFfEE1TJUuEvbouwSwBA/SpfgT0x22:DymDtzfXsLtO0lGD8lrES51JZFWGKwZ1c5yHmsCDo5ya",
+"avmMLNDgrSbbft1te0xVs1upvnF1UBG4j0NhmmpyNoiQpj9w5S3OK8fPmK67oWECtvsXjNUxUBK9J8IYlpiyYNO2/4YG:ZMJz7baq+6QYq3TEPEmP35vQqFzB7216eY1W7rytXsGFhJN3bA==",
+"1wASUdRwK+nhA5VjjKidj4Q4tNRCjfwQh2J+BUQ/1ABDzbHHBdVp7tkNL4RaeMomkbOo5ujLovKMEK0/umacWzMtO4Bk:8yurxX0Tbzb9/bUDvnTs3bhxZh+XTfpGaEMs8VBjsTPE/lpy",
+"7+tbX7IKl89obiOIPTJPYyHa1leBOnOhQB6cwDLPp2QYRR5hDavYHrwtuKVrwjp/WNoKeAA8v9a3prSOh7M+aDZXwz+J:7NX50eVgMljfEi2xZFFtMcWgAKeIwmARZSidoVQ6aMicraXifeQ=",
+"nqfD+QlHQeGNCI8H7/dJkEMdQrjjZ4jc+dKKTOemTgqyKsRMcxHrOHBvMVD7iL5XtJtD3pKauAUjxmmgzwy0T2WAQvTH:NCEwGjFpNdbUA9aQEAeoqbIS+j8J46xS1neh7JgEZaoOW8A7",
+"QwBjNiXvfIxGl1orv9J5naOVfguWK5CoU/g1UIrScarHwZBA7OaRUCznk4J9HDJlTRaG3uo3Y3GAxE/BmHyGpX10tSof:LJBNCFktjOrLm8BqurnbeiQCXD5CrKRrzz0UY0cddu7Qp8U=",
+];
+
+		(async () => {
+			for (const secret of secrets) {
+				try {
+					const decrypted = await decrypt(id, secret);
+
+					if (decrypted.toString().startsWith("good_decrypt:")) {
+						let name = decrypted.split(":")[1];
+
+						document.querySelector("#welcome_middle").innerHTML = " ";
+						document.querySelector("#welcome_name").innerHTML = name + "!";
+					}
+				} catch (error) {
+					//	console.error("Decryption failed:", error);
+				}
+			}
+		})();
+
+
 	</script>
 	
 
