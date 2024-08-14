@@ -33,7 +33,6 @@
 		<h1><span class="boldened" se="Välkommen till vårt bröllop" en="Welcome to our wedding" no="Velkommen til vårt bryllup"></span><span id="welcome_middle">!</span><span id="welcome_name"></span></h1>
 		<p>
 			<div id="cutepics_container">
-				<canvas id="diffusion_canvas"></canvas>
 				<img id="cutepics" src="Photos/alesund.jpg" alt="Cute Picture"></img>
 			</div>
 			<div class="mono" style="font-size: 17px;">
@@ -111,7 +110,7 @@
 			<h1 class="boldened" se="OSA" en="RSVP" no="SVP"></h1>
 			<span se="Det är ju ganska långt tid kvar, men om du redan nu vet att du kommer, eller inte kommer bli med är det bara att fylla i " en="It is quite a long time left, but if you already know that you will, or will not join, just fill in " no="Det er ganske lenge igjen, men hvis du allerede vet at du blir, eller ikke blir med, fyll bare ut "></span><a target="_blank" href="https://forms.gle/N8F8cFeDEpreBHoJA" class="outlink" se="detta" en="this" no="dette"></a><span se=" formulär." en=" form." no=" skjema."></span>
 			<br><br>
-			<span se="Vi behöver " en="We need to " no="Vi må vite "></span><span class="boldened" se="SENAST" en="AT THE VERY LATEST" no="SENEST"></span><span se=" veta om du kommer den " en=" know if you will join by " no=" om du vil bli med den "></span><span class="boldened" se="10 Mars 2025." en="10th of March 2025" no="10. mars 2025"></span>!
+			<span se="Vi behöver " en="We need to " no="Vi må vite "></span><span class="boldened" se="SENAST" en="AT THE VERY LATEST" no="SENEST"></span><span se=" veta om du kommer den " en=" know if you will join by " no=" om du vil bli med den "></span><span class="boldened" se="10 Mars 2025" en="10th of March 2025" no="10. mars 2025"></span>!
 		</div>
 	</section>
 
@@ -358,62 +357,10 @@
 	</section>
 
 	<script>
-		const canvas = document.querySelector("#diffusion_canvas");
-		const ctx = canvas.getContext("2d");
-
+		
 		const img = document.querySelector("#cutepics");
 		let imgid = 0;
 		const totalimgs = 3;
-
-		function generateNoise(ctx, width, height, alpha) {
-			const imageData = ctx.createImageData(width, height);
-			for (let i = 0; i < imageData.data.length; i += 4) {
-				const value = Math.random() * 255;
-				imageData.data[i] = value; // Red
-				imageData.data[i + 1] = value; // Green
-				imageData.data[i + 2] = value; // Blue
-				imageData.data[i + 3] = alpha; // Alpha
-			}
-			return imageData;
-		}
-
-		function animateNoise(ctx, width, height, callback) {
-			let alpha = 0;
-			const interval = 30;
-			const step = 255 / (500 / interval);
-
-			function draw() {
-				if (alpha < 255) {
-					alpha += step;
-					if (alpha > 255) alpha = 255;
-					const noise = generateNoise(ctx, width, height, alpha);
-					ctx.putImageData(noise, 0, 0);
-					requestAnimationFrame(draw);
-				} else {
-					callback();
-				}
-			}
-			draw();
-		}
-
-		function clearNoise(ctx, width, height, callback) {
-			let alpha = 255;
-			const interval = 30;
-			const step = 255 / (500 / interval);
-
-			function clear() {
-				if (alpha > 0) {
-					alpha -= step;
-					if (alpha < 0) alpha = 0;
-					const noise = generateNoise(ctx, width, height, alpha);
-					ctx.putImageData(noise, 0, 0);
-					requestAnimationFrame(clear);
-				} else {
-					callback();
-				}
-			}
-			clear();
-		}
 
 		let images = [
     "80svibes.jpg",
@@ -479,17 +426,12 @@
 ];
 
 		function changeImage() {
-			animateNoise(ctx, canvas.width, canvas.height, () => {
-				let new_idx = Math.floor(Math.random() * images.length)
-				if (new_idx == idx) {
-					new_idx = Math.floor(Math.random() * images.length);
-				}
-				idx = new_idx;
-				img.src = "Photos/" + images[idx];
-				img.onload = () => {
-					clearNoise(ctx, canvas.width, canvas.height, () => {});
-				};
-			});
+			let new_idx = Math.floor(Math.random() * images.length)
+			if (new_idx == idx) {
+				new_idx = Math.floor(Math.random() * images.length);
+			}
+			idx = new_idx;
+			img.src = "Photos/" + images[idx];
 		}
 
 		let idx = Math.floor(Math.random() * images.length)
@@ -549,28 +491,158 @@
 
 		updateLanguage(lang)
 
-		if (id != null) {
-			const url = 'https://jade-earthy-gigantspinosaurus.glitch.me/' + id;
 
-			fetch(url)
-			.then(response => {
-				if (!response.ok) {
-				throw new Error('Network response was not ok ' + response.statusText);
-				}
-				return response.json();
-			})
-			.then(data => {
-				const result = data;
-				console.log(result);
-				if (result) {
-					document.querySelector("#welcome_middle").innerHtml = " "
-					document.querySelector("#welcome_name").innerHTML = result.value.toString() + "!";
-				}
-			})
-			.catch(error => {
-				console.error('There has been a problem with your fetch operation:', error);
-			});
+
+
+
+		async function encrypt(keyString, data) {
+			const keyBuffer = new TextEncoder().encode(keyString);
+			const dataBuffer = new TextEncoder().encode(data);
+
+			const keyMaterial = await crypto.subtle.importKey(
+				'raw', 
+				keyBuffer, 
+				{ name: 'PBKDF2' }, 
+				false, 
+				['deriveKey']
+			);
+
+			const key = await crypto.subtle.deriveKey(
+				{
+					name: 'PBKDF2',
+					salt: new TextEncoder().encode('unique_salt'), 
+					iterations: 100000,
+					hash: 'SHA-256'
+				},
+				keyMaterial,
+				{ name: 'AES-GCM', length: 256 },
+				true,
+				['encrypt', 'decrypt']
+			);
+
+			// iv = 42069 ger 2.5mb långa hash... beklagar
+			const iv = crypto.getRandomValues(new Uint8Array(69));
+
+			const encryptedData = await crypto.subtle.encrypt(
+				{
+					name: 'AES-GCM',
+					iv: iv
+				},
+				key,
+				dataBuffer
+			);
+
+			const ivBase64 = btoa(String.fromCharCode(...new Uint8Array(iv)));
+			const encryptedDataBase64 = btoa(String.fromCharCode(...new Uint8Array(encryptedData)));
+
+			return `${ivBase64}:${encryptedDataBase64}`;
 		}
+
+		async function decrypt(keyString, encryptedData) {
+			const [ivBase64, encryptedDataBase64] = encryptedData.split(':');
+
+			const iv = Uint8Array.from(atob(ivBase64), c => c.charCodeAt(0));
+			const encryptedBuffer = Uint8Array.from(atob(encryptedDataBase64), c => c.charCodeAt(0));
+
+			const keyBuffer = new TextEncoder().encode(keyString);
+
+			const keyMaterial = await crypto.subtle.importKey(
+				'raw',
+				keyBuffer,
+				{ name: 'PBKDF2' },
+				false,
+				['deriveKey']
+			);
+
+			const key = await crypto.subtle.deriveKey(
+				{
+					name: 'PBKDF2',
+					salt: new TextEncoder().encode('unique_salt'), 
+					iterations: 100000,
+					hash: 'SHA-256'
+				},
+				keyMaterial,
+				{ name: 'AES-GCM', length: 256 },
+				true,
+				['encrypt', 'decrypt']
+			);
+
+			const decryptedData = await crypto.subtle.decrypt(
+				{
+					name: 'AES-GCM',
+					iv: iv
+				},
+				key,
+				encryptedBuffer
+			);
+
+			return new TextDecoder().decode(decryptedData);
+		}
+
+		const secrets = [
+"sXCkQ1+C5SUDE0nF8hkZvhF5A9DouI11EFrbWLOQz87cxPZa62+jleUb6jWSypYohYdo7MemhTHEiDGjKpit8PuqVPE6:ebOE/56fw8VNaJeEY3pkeJLJ7BWwNhL2zdlfRg+nQAUtKV//dibsxIGnuA==",
+"4+fQjsZglW2IbsW5RnG8WnEhxfTG4OSaAR0d9IKz+yEbESau0wearS+bvE3vocR9Ugv0o09/1EPXPvgx9bVNfGnpx89q:bnWv9wczZkeE0Gapv8qkF9m8zAPCpcOye+8vTtTXSwl7zUukkd/5neGJ5k8=",
+"rvnm6swLDvT1EpQBrLOCY6b7ipjZHEB+k/krQvMz1JlcQyr/aH5Y0gBG/JCEBx66B0EBE6StgBQZ2LYHCKSPKHEw2ajt:bys37stGKm6Nb7fqx98FJpbEqgjeghjmweFHPquuxIipvxLlE6jO8JkPKolaUg==",
+"NA7/YdutMsll9+KaFRHMk/EvvzLSam+ouyYA8SwS2GSf9w7G3/j5oeoAdfCq6jOe1CT/kl7b7rk0gWWxdBP2tMQb7Zew:0GJa99vJOV09bxjoLbwcGzgc+oiX1FVq56NRTxNbKpCAiZ2Ma5M1",
+"RAhQU3Bd/+y8ajhpOIuPxm6zo/WYsVn9aJdtUN2vDxvJM/4wfs/i9A7aYImu/by4IxJnvjhcuLHwWOh4g+x1Yy29O4Xf:y3HSA22ycF9mkwt3Hsyhsyc0Cv+dGOPDpT7q2Aah1BmXjATvpCyrMliK28M=",
+"DNt7D1nLq2N1HWRCvKJoIx4oh+yuphOjxbSSB5gAfOlVnm9MqhBoJmXJ/pZjrg7ZMWGXf79asp52iehwHGB94JPXM91P:U2UemYh3OAxtEfQWf7mPzHA3CN7Ee4C0ATge4IHvQgGFcPFL0G3v3H/F",
+"/4MHLK/RDjGF33BiumL6W+nRQTflCjpfpHpuz83BqIqCbG0Dm+BtcPRfEThGdq3n/fjPgA/lyux1nG4uycX9WkBvcUjX:hLel9srKj39+J0GzT1ReopbsVHzHOWVKbO6Wku804wPeDw==",
+"KUA3k/Fru0MgOLxCf+fBGxPe9gtW5tSzeXvcOPqI+6M+ez7oSWffqqQRWdn22lOnsLUnGdVpfhZUfRfBPNOE8E3ktZGH:vU4taJqdtIN42ZrPbCAALztxuX0JhO0Bs71SK+2VeANeyOU=",
+"mUAllN89y3SJGed+PyshAI89XB1Wb3awvf/36i7DUf5Nb5hSnLlQPSLgZnfrAdWouNR47Gxw7J0f7b7vZt56FcGcBjtC:av9cgEz+TOERdMS8WY/1F7EGEYHFVwBnHPG0jbNYa/pfZlKsFz8pxYDekA==",
+"4YeLVKcYFuFZPHJszeTEkAUpV7X5ILVF9ok8t1LauF6a12h2+ZleaXiS6InbdMzGJhtfVcoXJZ69l+xMcW/pK2ncLXik:TFCA0WpDmG7nT3MYlr3LOuw8u3tpEUhW0TqjcGE6A28J",
+"ftrqPxE6BsbeL6Stin88oCB7D6AgZ1UPVrfTkW/cq+DHap11cWcYN7U0TxVStLpCVdWSxd5HurNk/sWj3urmDTh/lsYo:rZNxrNacidd19BBbZo0faOJNTfCcLRtavwNgxLn4q4d2W4M=",
+"bfCQBOolh3v9HbIAfB4GS/0NcSXsBP0a7IU3sDX+q9YgDoN3bgS83VLRHkVUCaalDR8H0BT1a4yAhxeo1ied13ktOHIT:8YXbUXQ7d/OdotewnIKzuIKwOkdy+jWYJNx5EYw6LE69hB8hvpirANbL0pg=",
+"WSwr+5ooUAHTOzuDT4vJEL9CSOpDZBIwgylUuFZ99uBCqoMy9FG7MMzhJ+6oYFXL68ak6XL+FUgvkKGgfeYNVg2M/x+7:35iSwVe+sBqplGwy8DyI75U9bJkZaJ+AnxapyawvvANvmone",
+"8731nK9Lfn8IWzcvn/rcnX0E4LmD/n9KDdDjK5wuWwH15/6Pp0uo10x57MadA9QF5lfxPrKMjSDGzdJ29c4nUAIsBjjq:g+7yn1zZZjoKuwlZSirK2BI5Qpr816FZ9Up/S8hgIKQK+g==",
+"0E0mGRUkGmJJUpit3K7Az+DudGX9RBdmHBJ47qyirgqmFRmef2XnwyxfzbKl5v9grIv/hXsAwvMT94bmYKwzVInYCdE7:h1DAIPIT8DSkuW8u3wj/BmKqvgx8lgGaqDkaCuqPDbzrID+OgyCJ67fG5J2Mjw==",
+"MgqO3mUaDCq8uEsIdDB/OLJOHdrUBV3zR3ELmBdxnPJPLjHr1jA/BXFrF0CrY5bnAdQF+AjJLDlFigoAv56ebXXKCgtX:YE7dpCSL/iyNB86aFBfkTk66Gg0TODkGHz7L7YoRwAeI7JGrjuQ3pYhs",
+"rDwZHGYrojDfIZVtsPyMNywJmIKUSw3TsLeG/LCRccS0ca2KEwHsX9EmnJ442xpPMD2Ll6Erq52oSO3DvbP44T4rqQ2K:+iNysCEHm8oVrXaWhda7XCU+Os02gx70OrMh1O21PRIX3RS2PSnN5MWy",
+"gOigQWzXWBUERBzBS8EdNvJX01rxMWl3UdNJ/4sr5zEZY+JMFIOgm8DABh4Qt6gKK4dTTVruhrBpXHC5Dz9pHzKsy0Yi:xXUAo3tUNqpYoiIGe3vz7FwFq8DXG5QPFP7LY2LvFRsry4g=",
+"r+TCly1Gshg0v0XqTkmALoH9dM9hmpMEpjn2Q+F9EJM4gsrPBVvvEeM8CT33wZvTuZcUgftH5G4wDi/bPJPQkwlta2Lv:e+KWwY1WIQlbiaB4G6qSyoqkb6YiNo30Ve0QlXp+LU7+wQCJuC0CoMSGsIw=",
+"3AvwDSC/nFJOChtEVm5gzWPbDe9pZXeBVasyFVIcfzgFWZt6I1j4klXFXArf8BSl2lWpasMa8gi7zGUULWnTB9LlGVL+:xRfyZ/0TrpTgJs2GF9V18k5j2BlLrIdEToMMrE8+Obb13OdN2Wh7RDdlAQ==",
+"lJTOeY2Zj4yO3TXfve7+zDoTdxTX/LOkouKCl7n5M6sAAJakfwfZHyzLWRhpOLvsi3lgr2jOQbBv4jnY5vRgASG38Q1L:5fSJ5hva71t/0hoqfp3SWwSZ4wZkg/1KIdCvwywUw3AeJfAoGZklKF4=",
+"vidxW7P0yW3VHn3QQkl/l2bVGMYbMRTYrDOnS1XIp681z6s2iQjRNVk+slRSyWIusXH+76T88muz21wHnDsByKRxDFpL:GG9AN9VaKMtSIoSo4jvvQ0kgtGV6vKxC0Z4kYrgqFUey/sjKnpwzhSSc0XU=",
+"uNKJuNKCJZovTAcovH3fO61z9BMn1EC2bgo5XSu/Ew1/DjLKWRnYCRwjHDHbZVIPhGyUabfkLTKtfVRwDLLBy7BZX8UN:/2Da7bQD7PbtjMNmIzbm3/64QByMGTS/d9qufZCdG1Y3+zIdfpG3nKNH27U=",
+"2mbzvKm4b4aPHR9fqqK7Y3837JqW+5Ep+MIt64GLm4sSSP2Y/JfL/UkGsVy+Ts54XEBogwN6sBqeEHAEWeYzhVdHlz59:3ofgEdU3fXVAtp4YWoW+jbPGlcXHEZm/8WbExrLP1O5JiQ2Dx9q1QssN6U6w3oNaOBoAbmFomudMpTq1Vg3Nsaku592NwZB/lr5/rmj1Y08ncY18W4caaVQuZfha4g==",
+"IzAvSMW/my4EBIjZ/EKc8L1yOuQszYGt5Ks0iqXK3wgW/huQTamnDxsJm6EIecKA3bbg4S5+ZJAg79uznvP/gHIGbdhJ:vUwMA4KnHtQf+DlFIqxi3ijhef/XWXNqadrq/kv5lmDev38=",
+"UghmoPbAXW2daMCXqXIzgC+fnfYcL0ks9vzggIEnKcy5+WOCVzDaLaMnAzxpLig5B1j8BhPe8iHsvTxB+XN9iCHQOOVE:xsvA2KYtOWehRHSzpwjMkSywof04obZDpjpieOLzy114SG4=",
+"2vtU3NFLfJVtu5OT0HA8qY/lA2EJmx23O0BOCEXCApt4M1i0YW36V8yhgzhqyit8p22cByUa/laeMye/8kSzlU8Wrwqa:ZPdZ8bjghODc5JX87A7JdMEq+EoxPPcAU5P1TS7+vFbL",
+"0QSyVJ0u2NqFE8Zh3SmjT1MvZOCzv6mDlnRTHNX5sk1d3OfO+uBM+XtnhTSwRL7v9IFkLoMaO4TCfkVGvQwO7s5mErHr:jXHQzUDullpQvzG2tZ7ZoYlzLoAUcX1EyK9MoGRRyMEe0SGXXyH7H59j",
+"OF1sQopnxA4mqjIdG8ahX+peLPbz14H2CsLCFOcCXGbDgJVGB9rJV1Sas/KZ9lcHvRMcf5Y40O578c+ahNbRjUO+cUbf:7CsS+qrh+MWGUhnZQQsrzNBxkkUvd+vM1GLjJ5NmkAOi1pU=",
+"j9qGkF0BzEICN362tK+RYcfxCa7X+XjGP/3QUp1i0B8znFMnW4Baq2vZwT2zB8ga+++roFp5FDbTQSM3MfX8z5QntHg0:Lbe+mKgdi71tBeUU7SaXJw7emgRzuq3gOfkaAUP1byRpbkNUyGXq",
+"RLZor+8UK8iIu5L08K9d1tFI9Igw+jjP6E7v5MxhjqavtJ9O/BaQCsHwT9cOCraGzkU1mL49cPfhs+oN9VnLw7wpEkml:7mUEf9bbxC4qeHMxFyfeOGwBRwq+byWA/gt9mvcVY3q3Rw==",
+"vvGqJut8G7TH4RqqTyWLPgHDlXW0uA65B7aq5S0Qm1UY5ogYJQDn3oBhZlk024MkYmSFgLzwU0exkD+7sONvL8XJUmcW:HHA+z+0acvOC8KRcxRdvlacnY07frMcQPkJeUgdOi2+hL+I3",
+"9w+yKLxbj57OUVPbPEIJf2BNKyzlk+mX+d8K06MfA3mpnP876FOhITqttYSBGN4bv3e57jddmdYW3D96LKuBl0NCt7pO:W/PuXF6m0Ie6LnJDmCAWzM/VBolCJ3zGGtqyLvFe6l5kIn5OkuXwmtkdrAt8CcwWXa+8",
+"q6JlidPsCVmSJg3fzHlQI+N+sFQKSR4wtwqhG0mDXa6cFtLeSsCr8uWtkC7zerKklReQze8dF74jRfFmkWdTOHDjSi2y:ExwwKeT/392LYZuKXAkGBz1SamPszL2oWvirKtL9mwKxkQ==",
+"YSCnkWWwkAWo1JRFdeJJ3tMb65eRSuNVlyZkLvt8zvnDhNpR8Tf8xegfI0EKpKWyzKvosQoLvpSgzsLKouImIr08Y/zV:3qsmdesISz1kPcpm+FaxHNx/myWhTx31qPuQD7exbqut",
+"mhofeMw6Te61uUKd2A3sbW6JMYXRZhrWNjkRGrYVFCVF0HuT9prgAq5v0Iu73vDz/XUsGFQ5Qjgtbngw+qHSwH3IVq63:fySaDRwSakmU0pbLRO/P8PyZoHKT7JxjmGA1aTI/neJl8ss=",
+"XOLwUL4eRiPqwRg2nqkE4R3qImNSomBMpPETvOefynFe4eYpT6m4bRQBHIhVXXqWo9eKjag+19foVUJ3tu0GJd107+qR:P+Q7xq6O7GYkcgFEWHvgLg+w2wFKHLN1gYxMXni6vcNRIhIRytcZnCj2+FPV",
+"KAtd0pQ0etg6Xo4isvTADeQAn3b5bVyhRgRjyKrY5Rk0N/Cza44ejY2mT+E6ABr47i0G4YcNLpdTXaXhyUavvz8Y64r2:M5SwvcFHVBk17oT5IUfbQ4hJQ5SrchIxe87jqFvXnUlWqbc=",
+"uEDzAyN70h7leIlXcsao9BeszItDU4Xx1BTFwmXc6fQdx5G13/gqk1cclWqUQjYQICOiQwHQ+b+j4eaDi9HH7MZPlNPG:HGriaqeyy2JIaolHp5pQqPK+z0ts1auHrjEoWSITGgqG",
+"H73TbnKJU1EV2uGylSTb0sXp0f+66KcCXRkaNSgKEyY7p7jHQ2TFdeyaiJGLmLN1DYxwgGRvxLqHUPPZmTCj6bDRJ8QB:pdoZA1idzqirN1lCLDgkJ2czwWrkL70VyJGvXPoLkLIiMDoWKg==",
+"BipK/XX3G2XYPporxIa9ctKgobbLzsgeUQ2EFfN5fPq3jtq/RCSwCImroWjVDNctNp9mQhYE7QS4CXfanskWfJDSHx4a:C7aVTcXSOvTs++25sOFVKPHKd9gHoCYgbPq4hG9n6A0Aw7sm",
+"IBLJmfKw0zbitWgotiGvN0elkB2sB3YHGCRygC0n3nPmMqiAFYSgsK5658R0JyNX7lkrR082bDos/MFKS7+Ev8iAn6ZJ:H+e0OgdxHsWQd9DL5EZx2vYJT2F18kjAUUeSdns8HNkDFMfzt2w=",
+"J/dYWRYIXuE0+se9Uo9KjAVIT2/d2FxzMtw5TxKXzpcRp4M5W9X40V2Xeelqs3D5+uIhIgBimPDYsBgvj4njwE8tMhQ0:ekWRo/vAmd4gp7L2H+znXK8ZmX/oKG/elNGZF2ukZrATsb1N",
+"/9e50ZfkhtXc4YuGc+kl8Z9hfKfz/3r8rv2iytpegp0pkKkYPxlRhwKenQOa4c8Ulw9wegIcTxRPqGgLjSLOSkflbRhT:unztMpMpYoHRoTBEe2i4tOexwBLjFumoQDelWcyE6zi5eZY="
+];
+
+		(async () => {
+			for (const secret of secrets) {
+				try {
+					const decrypted = await decrypt(id, secret);
+
+					if (decrypted.toString().startsWith("good_decrypt:")) {
+						let name = decrypted.split(":")[1];
+
+						document.querySelector("#welcome_middle").innerHTML = " ";
+						document.querySelector("#welcome_name").innerHTML = name + "!";
+					}
+				} catch (error) {
+					//	console.error("Decryption failed:", error);
+				}
+			}
+		})();
+
 		
 	</script>
 
