@@ -594,3 +594,23 @@ h1 {
 .visible-char {
     opacity: 1;
 }
+
+.flag {
+    width: calc(20px * 4/3);
+    height: 20px;
+    margin-bottom: 10px;
+    background-repeat: no-repeat;
+}
+
+#se_flag {
+    background-image: url("se.svg");
+}
+
+#no_flag {
+    background-image: url("no.svg");
+}
+
+#en_flag {
+    margin-bottom: 0px;
+    background-image: url("us.svg");
+}
