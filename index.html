@@ -735,10 +735,26 @@
 					const decrypted = await decrypt(id, secret);
 
 					if (decrypted.toString().startsWith("good_decrypt:")) {
-						let name = decrypted.split(":")[1];
+						let name = decrypted.split(":")[1] + "!";
 
 						document.querySelector("#welcome_middle").innerHTML = " ";
-						document.querySelector("#welcome_name").innerHTML = name + "!";
+
+						const span = document.getElementById('welcome_name');
+
+						span.textContent = '';
+
+						for (let i = 0; i < name.length; i++) {
+							const charSpan = document.createElement('span');
+							charSpan.textContent = name[i];
+							charSpan.classList.add('hidden-char');
+							span.appendChild(charSpan);
+
+							setTimeout(() => {
+								charSpan.classList.add('visible-char');
+							}, i * 50);
+						}
+
+						//document.querySelector("#welcome_name").innerHTML = name + "!";
 					}
 				} catch (error) {
 					//	console.error("Decryption failed:", error);
